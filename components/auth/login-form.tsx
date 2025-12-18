@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { authService } from '@/lib/api/auth';
@@ -21,10 +22,17 @@ export function LoginForm() {
         try {
             const response = await authService.login({ email, password });
 
-            // Store token securely (omitted for now as per prompt instructions to "only do this for now")
-            // but let's at least log it or pretend to store it so the logic is complete
             if (response.token) {
-                // localStorage.setItem('token', response.token); 
+                // Store token in cookie with 7 day expiry
+                Cookies.set('token', response.token, { expires: 7, secure: true, sameSite: 'strict' });
+
+                // Store user profile in localStorage
+                localStorage.setItem('user_profile', JSON.stringify({
+                    id: response.id,
+                    name: response.name,
+                    email: response.email,
+                    role: response.role
+                }));
             }
 
             if (response.role === 'ADMIN') {
