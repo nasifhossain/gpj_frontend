@@ -31,12 +31,17 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
 
   if (!response.ok) {
     const errorBody = await response.text();
+    let errorMessage: string;
+    
     try {
         const errorJson = JSON.parse(errorBody);
-        throw new Error(errorJson.message || `API Error: ${response.statusText}`);
+        errorMessage = errorJson.message || errorJson.error || errorJson.detail || (errorJson.errors ? JSON.stringify(errorJson.errors) : null) || response.statusText;
     } catch {
-        throw new Error(`API Request Failed: ${response.status} ${response.statusText}`);
+        // If parsing fails, use the raw text or a generic message
+        errorMessage = errorBody || response.statusText;
     }
+
+    throw new Error(errorMessage);
   }
 
   const text = await response.text();
