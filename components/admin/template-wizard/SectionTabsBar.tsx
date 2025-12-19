@@ -139,7 +139,7 @@ export const SectionTabsBar: React.FC<SectionTabsBarProps> = ({
                     {/* Add Section Button */}
                     <button
                         onClick={onAddSection}
-                        className="flex items-center gap-2 px-6 py-3.5 text-sm font-semibold text-emerald-700 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition-all border-2 border-emerald-200 whitespace-nowrap shadow-sm hover:shadow-md"
+                        className="flex items-center gap-2 px-6 py-3.5 text-sm font-semibold text-emerald-700 bg-white rounded-xl hover:bg-emerald-50 transition-all border-2 border-emerald-300 hover:border-emerald-400 whitespace-nowrap shadow-sm hover:shadow-md"
                     >
                         <Plus className="w-5 h-5" />
                         Add Section

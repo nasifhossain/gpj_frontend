@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { InputField } from '@/lib/types';
 import { Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 
@@ -10,6 +10,23 @@ interface FieldCardProps {
 
 export const FieldCard: React.FC<FieldCardProps> = ({ field, onUpdate, onRemove }) => {
     const [showAdvanced, setShowAdvanced] = useState(false);
+    const [optionsText, setOptionsText] = useState('');
+
+    // Initialize options text from field.options
+    useEffect(() => {
+        if (field.options) {
+            setOptionsText(field.options.join(', '));
+        }
+    }, [field.options]);
+
+    const handleOptionsBlur = () => {
+        // Parse options when user finishes editing
+        const parsedOptions = optionsText
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean);
+        onUpdate({ options: parsedOptions });
+    };
 
     return (
         <div className="bg-white border-2 border-gray-200 rounded-lg p-5 hover:border-emerald-300 transition-all shadow-sm">
@@ -73,15 +90,9 @@ export const FieldCard: React.FC<FieldCardProps> = ({ field, onUpdate, onRemove 
                             </label>
                             <input
                                 type="text"
-                                value={field.options?.join(', ') || ''}
-                                onChange={(e) =>
-                                    onUpdate({
-                                        options: e.target.value
-                                            .split(',')
-                                            .map((s) => s.trim())
-                                            .filter(Boolean),
-                                    })
-                                }
+                                value={optionsText}
+                                onChange={(e) => setOptionsText(e.target.value)}
+                                onBlur={handleOptionsBlur}
                                 placeholder="e.g., Option1, Option2, Option3"
                                 className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg text-sm text-gray-900 bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 placeholder:text-gray-400 transition-all"
                             />
@@ -93,7 +104,7 @@ export const FieldCard: React.FC<FieldCardProps> = ({ field, onUpdate, onRemove 
                     <button
                         type="button"
                         onClick={() => setShowAdvanced(!showAdvanced)}
-                        className="flex items-center gap-2 text-xs text-indigo-600 hover:text-indigo-700 font-semibold transition-colors"
+                        className="flex items-center gap-2 text-xs text-emerald-600 hover:text-emerald-700 font-semibold transition-colors"
                     >
                         {showAdvanced ? (
                             <ChevronUp className="w-4 h-4" />

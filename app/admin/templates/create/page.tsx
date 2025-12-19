@@ -10,6 +10,7 @@ import { StepTabs } from '@/components/admin/template-wizard/StepTabs';
 import { BasicInfoStep } from '@/components/admin/template-wizard/BasicInfoStep';
 import { SectionEditorStep } from '@/components/admin/template-wizard/SectionEditorStep';
 import { SectionTabsBar } from '@/components/admin/template-wizard/SectionTabsBar';
+import { SectionContextHeader } from '@/components/admin/template-wizard/SectionContextHeader';
 import { FieldGroupSidebar } from '@/components/admin/template-wizard/FieldGroupSidebar';
 import { ReviewStep } from '@/components/admin/template-wizard/ReviewStep';
 import { ProtectedLayout } from '@/components/layout/ProtectedLayout';
@@ -40,6 +41,11 @@ export default function CreateTemplatePage() {
         };
         setSections([...sections, newSection]);
         setActiveSectionIndex(sections.length);
+
+        // Toast notification with guidance
+        toast.success('Section added!', {
+            description: 'Now add field groups to organize your inputs.',
+        });
     };
 
     const removeSection = (index: number) => {
@@ -63,6 +69,12 @@ export default function CreateTemplatePage() {
             fields: [],
         });
         setSections(updated);
+        setActiveGroupIndex(updated[activeSectionIndex].inputFields.length - 1);
+
+        // Toast notification with guidance
+        toast.success('Field group added!', {
+            description: 'Start adding fields to collect data.',
+        });
     };
 
     const removeFieldGroup = (groupIndex: number) => {
@@ -193,7 +205,7 @@ export default function CreateTemplatePage() {
         <ProtectedLayout>
             <div className="flex flex-col h-screen">
                 {/* Minimal Header - Only Progress Bar */}
-                <div className="bg-white border-b border-gray-200 shadow-sm px-8 py-3">
+                <div className="bg-white border-b border-gray-200 shadow-sm px-8 py-2">
                     <div className="max-w-7xl mx-auto flex justify-center">
                         <StepTabs steps={steps} onStepClick={handleStepClick} />
                     </div>
@@ -213,6 +225,7 @@ export default function CreateTemplatePage() {
                         </div>
                     )}
 
+
                     {currentStep === 2 && (
                         <div className="flex flex-col h-[calc(100vh-200px)]">
                             {/* Section Tabs Bar */}
@@ -229,50 +242,72 @@ export default function CreateTemplatePage() {
 
                             {/* Main Content Area */}
                             {sections.length > 0 ? (
-                                <div className="flex flex-1 overflow-hidden">
-                                    {/* Field Group Sidebar */}
-                                    <FieldGroupSidebar
-                                        fieldGroups={sections[activeSectionIndex]?.inputFields || []}
-                                        activeGroupIndex={activeGroupIndex}
-                                        onGroupClick={setActiveGroupIndex}
-                                        onAddGroup={addFieldGroup}
-                                        onRemoveGroup={removeFieldGroup}
-                                        onUpdateGroupName={(index, name) => updateFieldGroupHeading(index, name)}
+                                <>
+                                    {/* Section Context Header */}
+                                    <SectionContextHeader
+                                        templateName={templateName}
+                                        sectionName={sections[activeSectionIndex]?.sectionName}
+                                        sectionIndex={activeSectionIndex}
+                                        onEditSection={() => {
+                                            // Focus on section name in tabs
+                                            const sectionName = prompt('Enter section name:', sections[activeSectionIndex]?.sectionName);
+                                            if (sectionName) updateSectionName(activeSectionIndex, sectionName);
+                                        }}
+                                        onDeleteSection={() => {
+                                            if (confirm('Are you sure you want to delete this section?')) {
+                                                removeSection(activeSectionIndex);
+                                            }
+                                        }}
                                     />
 
-                                    {/* Field Editor */}
-                                    <div className="flex-1 overflow-y-auto">
-                                        <SectionEditorStep
-                                            section={sections[activeSectionIndex]}
-                                            sectionIndex={activeSectionIndex}
+                                    <div className="flex flex-1 overflow-hidden">
+                                        {/* Field Group Sidebar */}
+                                        <FieldGroupSidebar
+                                            fieldGroups={sections[activeSectionIndex]?.inputFields || []}
                                             activeGroupIndex={activeGroupIndex}
-                                            onUpdateSectionName={(name) => updateSectionName(activeSectionIndex, name)}
-                                            onAddFieldGroup={addFieldGroup}
-                                            onRemoveFieldGroup={removeFieldGroup}
-                                            onUpdateFieldGroupHeading={updateFieldGroupHeading}
-                                            onAddField={addField}
-                                            onRemoveField={removeField}
-                                            onUpdateField={updateField}
+                                            onGroupClick={setActiveGroupIndex}
+                                            onAddGroup={addFieldGroup}
+                                            onRemoveGroup={removeFieldGroup}
+                                            onUpdateGroupName={(index, name) => updateFieldGroupHeading(index, name)}
                                         />
+
+                                        {/* Field Editor */}
+                                        <div className="flex-1 overflow-y-auto">
+                                            <SectionEditorStep
+                                                section={sections[activeSectionIndex]}
+                                                sectionIndex={activeSectionIndex}
+                                                activeGroupIndex={activeGroupIndex}
+                                                onUpdateSectionName={(name: string) => updateSectionName(activeSectionIndex, name)}
+                                                onAddFieldGroup={addFieldGroup}
+                                                onRemoveFieldGroup={removeFieldGroup}
+                                                onUpdateFieldGroupHeading={updateFieldGroupHeading}
+                                                onAddField={addField}
+                                                onRemoveField={removeField}
+                                                onUpdateField={updateField}
+                                            />
+                                        </div>
                                     </div>
-                                </div>
+                                </>
                             ) : (
-                                <div className="flex items-center justify-center h-full">
-                                    <div className="text-center">
-                                        <div className="w-24 h-24 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                                <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-50 to-gray-100">
+                                    <div className="text-center max-w-lg px-6">
+                                        <div className="w-24 h-24 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
                                             <Sparkles className="w-12 h-12 text-emerald-600" />
                                         </div>
-                                        <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                                            No sections yet
+                                        <h3 className="text-2xl font-bold text-gray-900 mb-3">
+                                            Let's build your template
                                         </h3>
-                                        <p className="text-gray-600 mb-6">
-                                            Click "Add Section" above to get started
+                                        <p className="text-gray-600 mb-2 leading-relaxed">
+                                            Start by adding sections to organize your form into logical parts.
+                                        </p>
+                                        <p className="text-sm text-gray-500 mb-8 leading-relaxed">
+                                            <span className="font-semibold">Examples:</span> "Client Information", "Project Details", "Budget & Timeline"
                                         </p>
                                         <button
                                             onClick={addSection}
-                                            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg"
+                                            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg"
                                         >
-                                            <Sparkles className="w-4 h-4" />
+                                            <Sparkles className="w-5 h-5" />
                                             Create First Section
                                         </button>
                                     </div>
@@ -303,37 +338,54 @@ export default function CreateTemplatePage() {
                             Previous
                         </button>
 
-                        {currentStep < 3 ? (
-                            <button
-                                onClick={handleNext}
-                                className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg"
-                            >
-                                Next
-                                <ArrowRight className="w-4 h-4" />
-                            </button>
-                        ) : (
-                            <button
-                                onClick={handleSubmit}
-                                disabled={isSubmitting}
-                                className="flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                {isSubmitting ? (
-                                    <>
-                                        <Loader2 className="w-4 h-4 animate-spin" />
-                                        Creating...
-                                    </>
-                                ) : (
-                                    <>
-                                        <Sparkles className="w-4 h-4" />
-                                        Create Template
-                                    </>
-                                )}
-                            </button>
-                        )}
+                        <div className="flex items-center gap-3">
+                            {/* Save Draft Button - Tertiary/Subtle */}
+                            {currentStep < 3 && (
+                                <button
+                                    onClick={() => {
+                                        toast.success('Draft saved!', {
+                                            description: 'Your progress has been saved.',
+                                        });
+                                    }}
+                                    className="text-sm font-medium text-gray-600 hover:text-gray-900 underline decoration-dotted underline-offset-4 transition-colors"
+                                >
+                                    💾 Save Draft
+                                </button>
+                            )}
+
+                            {/* Next/Submit Button - Primary */}
+                            {currentStep < 3 ? (
+                                <button
+                                    onClick={handleNext}
+                                    className="flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg"
+                                >
+                                    <span>Next</span>
+                                    <ArrowRight className="w-4 h-4" />
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={handleSubmit}
+                                    disabled={isSubmitting}
+                                    className="flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {isSubmitting ? (
+                                        <>
+                                            <Loader2 className="w-5 h-5 animate-spin" />
+                                            Creating Template...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Sparkles className="w-5 h-5" />
+                                            Create Template
+                                        </>
+                                    )}
+                                </button>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
-        </ProtectedLayout>
+        </ProtectedLayout >
     );
 }
 
