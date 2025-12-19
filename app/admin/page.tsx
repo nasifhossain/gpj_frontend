@@ -1,12 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { fetchTemplates } from '@/lib/api';
 import { Template } from '@/lib/types';
 import { TemplateList } from '@/components/admin/TemplateList';
 import { TemplateDetail } from '@/components/admin/TemplateDetail';
+import { Plus } from 'lucide-react';
 
 export default function AdminPage() {
+    const router = useRouter();
     const [templates, setTemplates] = useState<Template[]>([]);
     const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
     const [loading, setLoading] = useState(true);
@@ -32,9 +35,20 @@ export default function AdminPage() {
         <div className="min-h-screen bg-gray-100 p-8">
             <div className="max-w-7xl mx-auto">
                 <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-                    {selectedTemplate && (
-                        <span className="text-gray-500 text-sm">Viewing Template Details</span>
+                    <div>
+                        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+                        {selectedTemplate && (
+                            <span className="text-gray-500 text-sm mt-1">Viewing Template Details</span>
+                        )}
+                    </div>
+                    {!selectedTemplate && (
+                        <button
+                            onClick={() => router.push('/admin/templates/create')}
+                            className="flex items-center gap-2 px-5 py-3 text-sm font-medium text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg"
+                        >
+                            <Plus className="w-5 h-5" />
+                            Create Template
+                        </button>
                     )}
                 </div>
 

@@ -14,10 +14,16 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
   };
 
   if (requiredAuth) {
-    // In a real app, this would likely come from a context or more robust storage
-    // For this task, we assume localStorage or similar mechanism
+    // Get token from cookies (where it's stored by the login form)
     if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('token');
+        // Parse cookies manually since we're in a client component
+        const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+            const [key, value] = cookie.trim().split('=');
+            acc[key] = value;
+            return acc;
+        }, {} as Record<string, string>);
+        
+        const token = cookies['token'];
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
         }

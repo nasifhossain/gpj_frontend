@@ -18,4 +18,13 @@ export const templateService = {
   getTemplateByName: async (templateName: string): Promise<Template> => {
     return api.get<Template>(`/briefs/templates/${templateName}`, { requiredAuth: true });
   },
+
+  /**
+   * Create a new brief from a template
+   * @param templateData - The template data including templateName, title, and sections
+   * @returns Promise<any> - The created brief response
+   */
+  createBriefFromTemplate: async (templateData: Template): Promise<any> => {
+    return api.post<any>('/briefs/from-template', templateData, { requiredAuth: true });
+  },
 };
