@@ -17,12 +17,15 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
 }) => {
     return (
         <div className="max-w-3xl mx-auto">
-            <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">Let's create your template</h2>
-                <p className="text-gray-600">Start by giving your template a name and title</p>
+            <div className="text-center mb-10">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl mb-4 shadow-lg">
+                    <span className="text-3xl">📝</span>
+                </div>
+                <h2 className="text-3xl font-bold text-gray-900 mb-3">Let's create your template</h2>
+                <p className="text-lg text-gray-600">Start by giving your template a name and title</p>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-8 space-y-6">
+            <div className="bg-white rounded-2xl shadow-xl border-2 border-gray-200 p-8 space-y-6">
                 {/* Template Name */}
                 <div>
                     <label className="block text-sm font-semibold text-gray-900 mb-2">
@@ -66,14 +69,14 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({
                 </div>
 
                 {/* Info Box */}
-                <div className="bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl p-4">
+                <div className="bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 border-2 border-emerald-200 rounded-xl p-5 shadow-sm">
                     <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
-                            <span className="text-white text-sm font-bold">💡</span>
+                        <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-md">
+                            <span className="text-white text-lg">💡</span>
                         </div>
                         <div>
-                            <h4 className="text-sm font-semibold text-emerald-900 mb-1">Tip</h4>
-                            <p className="text-sm text-emerald-700">
+                            <h4 className="text-sm font-bold text-emerald-900 mb-1.5">Pro Tip</h4>
+                            <p className="text-sm text-emerald-800 leading-relaxed">
                                 Choose a descriptive name that makes it easy to identify this template later. You'll be able to add sections and fields in the next steps.
                             </p>
                         </div>

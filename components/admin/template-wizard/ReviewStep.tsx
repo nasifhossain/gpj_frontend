@@ -10,12 +10,12 @@ interface ReviewStepProps {
 export const ReviewStep: React.FC<ReviewStepProps> = ({ template, onEdit }) => {
     return (
         <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8">
-                <div className="w-16 h-16 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle2 className="w-8 h-8 text-white" />
+            <div className="text-center mb-10">
+                <div className="w-20 h-20 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-xl">
+                    <CheckCircle2 className="w-10 h-10 text-white" />
                 </div>
-                <h2 className="text-3xl font-bold text-gray-900 mb-2">Review Your Template</h2>
-                <p className="text-gray-600">Make sure everything looks good before creating</p>
+                <h2 className="text-3xl font-bold text-gray-900 mb-3">Review Your Template</h2>
+                <p className="text-lg text-gray-600">Make sure everything looks good before creating</p>
             </div>
 
             <div className="space-y-6">
