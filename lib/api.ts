@@ -1,8 +1,10 @@
-import { api } from './api/api';
+// Re-export the template service
+export { templateService } from './api/template';
+
+// For backward compatibility, also export the old function name
+import { templateService } from './api/template';
 import { Template } from './types';
 
 export const fetchTemplates = async (): Promise<Template[]> => {
-  // Use api.get which defaults to GET and handles headers/auth if configured
-  // Assuming 'requiredAuth: true' is needed as per original curl having Authorization header
-  return api.get<Template[]>('/briefs/templates', { requiredAuth: true });
+  return templateService.getTemplates();
 };
