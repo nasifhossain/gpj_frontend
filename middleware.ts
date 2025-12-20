@@ -14,6 +14,33 @@ const CLIENT_ROUTES = ['/dashboard', '/templates', '/profile']; // Client can ac
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
+  // Handle home page redirect based on user role
+  if (pathname === '/') {
+    const token = request.cookies.get('token')?.value;
+
+    if (!token) {
+      // No token, redirect to login
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+
+    try {
+      const decoded = jwtDecode<DecodedToken>(token);
+      
+      // Redirect based on role
+      if (decoded.role === 'ADMIN') {
+        return NextResponse.redirect(new URL('/admin', request.url));
+      } else if (decoded.role === 'CLIENT') {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+      } else {
+        // Unknown role, redirect to login
+        return NextResponse.redirect(new URL('/login', request.url));
+      }
+    } catch (error) {
+      // Invalid token, redirect to login
+      return NextResponse.redirect(new URL('/login', request.url));
+    }
+  }
+
   const isAdminRoute = ADMIN_ROUTES.some(route => pathname.startsWith(route));
   const isClientRoute = CLIENT_ROUTES.some(route => pathname.startsWith(route));
 
@@ -48,6 +75,7 @@ export function middleware(request: NextRequest) {
 export const config = {
   // Matcher must include all protected paths
   matcher: [
+    '/',
     '/admin/:path*',
     '/dashboard/:path*',
     '/templates/:path*',
