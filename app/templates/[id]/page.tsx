@@ -8,8 +8,9 @@ import { FieldInput } from '@/components/brief/FieldInput';
 import { FileUpload } from '@/components/brief/FileUpload';
 import { briefService } from '@/lib/api';
 import { Brief, BriefField } from '@/lib/types/brief';
-import { ArrowLeft, Save, FileText, CheckCircle2, Clock, Sparkles } from 'lucide-react';
+import { ArrowLeft, Save, FileText, CheckCircle2, Clock, Sparkles, Download } from 'lucide-react';
 import { toast } from 'sonner';
+import { generateAndPreviewBriefPDF } from '@/lib/utils/pdfGenerator';
 
 export default function BriefEditPage() {
     const params = useParams();
@@ -24,6 +25,7 @@ export default function BriefEditPage() {
     const [uploading, setUploading] = useState(false);
     const [generating, setGenerating] = useState(false);
     const [savingSection, setSavingSection] = useState(false);
+    const [generatingPDF, setGeneratingPDF] = useState(false);
 
     useEffect(() => {
         loadBrief();
@@ -240,6 +242,28 @@ export default function BriefEditPage() {
         }
     };
 
+    const handleGeneratePDF = async () => {
+        if (!brief) return;
+
+        setGeneratingPDF(true);
+
+        try {
+            toast.info('Generating PDF...');
+
+            await generateAndPreviewBriefPDF(brief);
+
+            toast.success('PDF opened in new tab!', {
+                description: 'Check the new tab to view your brief',
+            });
+        } catch (err: any) {
+            toast.error('Failed to generate PDF', {
+                description: err.message,
+            });
+        } finally {
+            setGeneratingPDF(false);
+        }
+    };
+
 
     if (loading) {
         return (
@@ -429,13 +453,34 @@ export default function BriefEditPage() {
                                 )}
                             </button>
 
-                            <button
-                                onClick={() => setActiveSectionIndex(prev => Math.min(brief.sections.length - 1, prev + 1))}
-                                disabled={activeSectionIndex === brief.sections.length - 1}
-                                className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md transition-all"
-                            >
-                                Continue →
-                            </button>
+
+                            {activeSectionIndex === brief.sections.length - 1 ? (
+                                <button
+                                    onClick={handleGeneratePDF}
+                                    disabled={generatingPDF}
+                                    className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md transition-all flex items-center gap-2"
+                                >
+                                    {generatingPDF ? (
+                                        <>
+                                            <Download className="w-4 h-4 animate-pulse" />
+                                            Generating PDF...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <FileText className="w-4 h-4" />
+                                            Generate PDF
+                                        </>
+                                    )}
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => setActiveSectionIndex(prev => Math.min(brief.sections.length - 1, prev + 1))}
+                                    disabled={activeSectionIndex === brief.sections.length - 1}
+                                    className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md transition-all"
+                                >
+                                    Continue →
+                                </button>
+                            )}
                         </div>
                     </div>
                 </main>
