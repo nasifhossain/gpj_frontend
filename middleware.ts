@@ -9,7 +9,7 @@ interface DecodedToken {
 
 // Define protected routes
 const ADMIN_ROUTES = ['/admin'];
-const CLIENT_ROUTES = ['/dashboard', '/profile']; // Example client routes, expand as needed
+const CLIENT_ROUTES = ['/dashboard', '/templates', '/profile']; // Client can access templates
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -50,6 +50,7 @@ export const config = {
   matcher: [
     '/admin/:path*',
     '/dashboard/:path*',
+    '/templates/:path*',
     '/profile/:path*'
   ],
 };

@@ -1,36 +1,17 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useRouter } from 'next/navigation';
-import { fetchTemplates } from '@/lib/api';
-import { Template } from '@/lib/types';
 import { TemplateList } from '@/components/admin/TemplateList';
 import { TemplateDetail } from '@/components/admin/TemplateDetail';
 import { ProtectedLayout } from '@/components/layout/ProtectedLayout';
+import { LoadingSpinner, ErrorAlert } from '@/components/shared/StatusComponents';
+import { useTemplates } from '@/hooks/useTemplates';
 import { Plus } from 'lucide-react';
 
 export default function AdminPage() {
     const router = useRouter();
-    const [templates, setTemplates] = useState<Template[]>([]);
-    const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        const loadTemplates = async () => {
-            try {
-                const data = await fetchTemplates();
-                setTemplates(data);
-            } catch (err) {
-                setError('Failed to load templates. Please ensure the backend is running.');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadTemplates();
-    }, []);
+    const { templates, selectedTemplate, loading, error, setSelectedTemplate } = useTemplates();
 
     return (
         <ProtectedLayout role="ADMIN">
@@ -57,20 +38,9 @@ export default function AdminPage() {
 
                     {/* Content */}
                     {loading ? (
-                        <div className="flex justify-center items-center h-64">
-                            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600"></div>
-                        </div>
+                        <LoadingSpinner />
                     ) : error ? (
-                        <div className="bg-red-50 border-l-4 border-red-400 p-4">
-                            <div className="flex">
-                                <div className="flex-shrink-0">
-                                    <span className="text-red-400">⚠️</span>
-                                </div>
-                                <div className="ml-3">
-                                    <p className="text-sm text-red-700">{error}</p>
-                                </div>
-                            </div>
-                        </div>
+                        <ErrorAlert message={error} />
                     ) : selectedTemplate ? (
                         <TemplateDetail
                             template={selectedTemplate}

@@ -2,3 +2,4 @@
 export { api } from './api';
 export { authService } from './auth';
 export { templateService } from './template';
+export { briefService } from './brief';
