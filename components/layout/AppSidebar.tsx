@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, FileText, LogOut, Sparkles } from 'lucide-react';
+import { LayoutDashboard, FileText, LogOut } from 'lucide-react';
 import Cookies from 'js-cookie';
 
 export const AppSidebar: React.FC = () => {
@@ -36,7 +36,7 @@ export const AppSidebar: React.FC = () => {
             <div className="p-6 border-b border-gray-700">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl flex items-center justify-center shadow-lg">
-                        <Sparkles className="w-6 h-6 text-white" />
+                        <span className="font-bold text-white text-sm">GPJ</span>
                     </div>
                     <div>
                         <h1 className="text-lg font-bold">GPJ Assistant</h1>

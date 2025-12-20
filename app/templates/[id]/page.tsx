@@ -21,9 +21,9 @@ export default function BriefEditPage() {
     const [error, setError] = useState<string | null>(null);
     const [activeSectionIndex, setActiveSectionIndex] = useState(0);
     const [fieldValues, setFieldValues] = useState<Record<string, any>>({});
-    const [saving, setSaving] = useState<Set<string>>(new Set());
     const [uploading, setUploading] = useState(false);
     const [generating, setGenerating] = useState(false);
+    const [savingSection, setSavingSection] = useState(false);
     const [uploadedS3Keys, setUploadedS3Keys] = useState<Record<string, string[]>>({});
 
     useEffect(() => {
@@ -55,35 +55,9 @@ export default function BriefEditPage() {
         }
     };
 
-    const handleFieldChange = async (field: BriefField, value: any) => {
-        // Update local state immediately
+    const handleFieldChange = (field: BriefField, value: any) => {
+        // Update local state only - no API call
         setFieldValues(prev => ({ ...prev, [field.id]: value }));
-
-        // Mark as saving
-        setSaving(prev => new Set(prev).add(field.id));
-
-        try {
-            await briefService.updateFieldValue(briefId, field.id, value);
-            toast.success('Field updated successfully', {
-                description: field.label,
-            });
-        } catch (err: any) {
-            toast.error('Failed to update field', {
-                description: err.message,
-            });
-            // Revert on error
-            setFieldValues(prev => {
-                const newValues = { ...prev };
-                delete newValues[field.id];
-                return newValues;
-            });
-        } finally {
-            setSaving(prev => {
-                const newSaving = new Set(prev);
-                newSaving.delete(field.id);
-                return newSaving;
-            });
-        }
     };
 
     const getStatusBadge = (status: string) => {
@@ -217,6 +191,47 @@ export default function BriefEditPage() {
         }
     };
 
+    const handleSaveSection = async () => {
+        const activeSection = brief!.sections[activeSectionIndex];
+
+        // Collect all field values for the current section
+        const sectionFieldValues: Record<string, any> = {};
+        activeSection.fields.forEach(field => {
+            const value = fieldValues[field.id];
+            if (value !== undefined && value !== null && value !== '') {
+                sectionFieldValues[field.fieldKey] = value;
+            }
+        });
+
+        if (Object.keys(sectionFieldValues).length === 0) {
+            toast.error('No field values to save', {
+                description: 'Please fill in at least one field before saving',
+            });
+            return;
+        }
+
+        setSavingSection(true);
+
+        try {
+            toast.info('Saving section...');
+
+            await briefService.fillSection(activeSection.id, sectionFieldValues);
+
+            toast.success('Section saved successfully!', {
+                description: `Saved ${Object.keys(sectionFieldValues).length} field(s)`,
+            });
+
+            // Reload the brief to get updated values
+            await loadBrief();
+        } catch (err: any) {
+            toast.error('Failed to save section', {
+                description: err.message,
+            });
+        } finally {
+            setSavingSection(false);
+        }
+    };
+
 
     if (loading) {
         return (
@@ -244,6 +259,11 @@ export default function BriefEditPage() {
 
     const activeSection = brief.sections[activeSectionIndex];
     const fieldGroups = groupFieldsByHeading(activeSection.fields);
+
+    // Check if any field in the section has a prompt (AI-enabled)
+    const hasAIEnabledFields = activeSection.fields.some(
+        field => field.prompt && field.prompt.trim() !== ''
+    );
 
     return (
         <ProtectedLayout role="CLIENT">
@@ -302,45 +322,47 @@ export default function BriefEditPage() {
                             </p>
                         </div>
 
-                        {/* File Upload and AI Generation */}
-                        <div className="mb-8 p-6 bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl">
-                            <div className="flex items-center justify-between mb-4">
-                                <div>
-                                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                                        <Sparkles className="w-5 h-5 text-emerald-600" />
-                                        AI-Powered Section Fill
-                                    </h3>
-                                    <p className="text-sm text-gray-600 mt-1">
-                                        Upload documents and let AI fill this section automatically
-                                    </p>
+                        {/* File Upload and AI Generation - Only show if section has AI-enabled fields */}
+                        {hasAIEnabledFields && (
+                            <div className="mb-8 p-6 bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl">
+                                <div className="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                            <Sparkles className="w-5 h-5 text-emerald-600" />
+                                            AI-Powered Section Fill
+                                        </h3>
+                                        <p className="text-sm text-gray-600 mt-1">
+                                            Upload documents and let AI fill this section automatically
+                                        </p>
+                                    </div>
+                                    <button
+                                        onClick={handleGenerateWithAI}
+                                        disabled={generating || uploading || (uploadedS3Keys[activeSection.id]?.length || 0) === 0}
+                                        className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center gap-2"
+                                    >
+                                        {generating ? (
+                                            <>
+                                                <Save className="w-4 h-4 animate-spin" />
+                                                Generating...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Sparkles className="w-4 h-4" />
+                                                Generate with AI
+                                            </>
+                                        )}
+                                    </button>
                                 </div>
-                                <button
-                                    onClick={handleGenerateWithAI}
-                                    disabled={generating || uploading || (uploadedS3Keys[activeSection.id]?.length || 0) === 0}
-                                    className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center gap-2"
-                                >
-                                    {generating ? (
-                                        <>
-                                            <Save className="w-4 h-4 animate-spin" />
-                                            Generating...
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Sparkles className="w-4 h-4" />
-                                            Generate with AI
-                                        </>
-                                    )}
-                                </button>
+                                <FileUpload
+                                    onFilesSelected={handleFilesSelected}
+                                    uploading={uploading}
+                                    uploadedFiles={brief.documents?.map(doc => ({
+                                        name: doc.fileName,
+                                        s3Key: doc.s3Key,
+                                    })) || []}
+                                />
                             </div>
-                            <FileUpload
-                                onFilesSelected={handleFilesSelected}
-                                uploading={uploading}
-                                uploadedFiles={brief.documents?.map(doc => ({
-                                    name: doc.fileName,
-                                    s3Key: doc.s3Key,
-                                })) || []}
-                            />
-                        </div>
+                        )}
 
                         {/* Field Groups */}
                         <div className="space-y-8">
@@ -359,14 +381,7 @@ export default function BriefEditPage() {
                                                     field={field}
                                                     value={fieldValues[field.id]}
                                                     onChange={(value) => handleFieldChange(field, value)}
-                                                    disabled={saving.has(field.id)}
                                                 />
-                                                {saving.has(field.id) && (
-                                                    <p className="text-xs text-emerald-600 mt-1 flex items-center gap-1">
-                                                        <Save className="w-3 h-3 animate-pulse" />
-                                                        Saving...
-                                                    </p>
-                                                )}
                                             </div>
                                         ))}
                                     </div>
@@ -375,20 +390,39 @@ export default function BriefEditPage() {
                         </div>
 
                         {/* Navigation Buttons */}
-                        <div className="flex justify-between mt-8 pt-6 border-t border-gray-200">
+                        <div className="flex justify-between items-center mt-8 pt-6 border-t border-gray-200">
                             <button
                                 onClick={() => setActiveSectionIndex(prev => Math.max(0, prev - 1))}
                                 disabled={activeSectionIndex === 0}
-                                className="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="px-6 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
-                                Previous Section
+                                ← Previous
                             </button>
+
+                            <button
+                                onClick={handleSaveSection}
+                                disabled={savingSection}
+                                className="px-6 py-2.5 text-sm font-semibold text-emerald-700 bg-emerald-50 border-2 border-emerald-600 rounded-lg hover:bg-emerald-100 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center gap-2 transition-all"
+                            >
+                                {savingSection ? (
+                                    <>
+                                        <Save className="w-4 h-4 animate-spin" />
+                                        Saving Section...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Save className="w-4 h-4" />
+                                        Save Section
+                                    </>
+                                )}
+                            </button>
+
                             <button
                                 onClick={() => setActiveSectionIndex(prev => Math.min(brief.sections.length - 1, prev + 1))}
                                 disabled={activeSectionIndex === brief.sections.length - 1}
-                                className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md"
+                                className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md transition-all"
                             >
-                                Next Section
+                                Continue →
                             </button>
                         </div>
                     </div>

@@ -90,6 +90,16 @@ export const briefService = {
   },
 
   /**
+   * Fill section with manual field values
+   */
+  fillSection: async (sectionId: string, fieldValues: Record<string, any>): Promise<any> => {
+    return api.post('/fieldvalue/section/fill', {
+      sectionId,
+      fieldValues,
+    }, { requiredAuth: true });
+  },
+
+  /**
    * Complete upload workflow: get signed URL, upload to S3, confirm
    */
   uploadFile: async (briefId: string, file: File): Promise<string> => {
