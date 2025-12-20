@@ -5,9 +5,10 @@ import { useParams, useRouter } from 'next/navigation';
 import { ProtectedLayout } from '@/components/layout/ProtectedLayout';
 import { LoadingSpinner, ErrorAlert } from '@/components/shared/StatusComponents';
 import { FieldInput } from '@/components/brief/FieldInput';
+import { FileUpload } from '@/components/brief/FileUpload';
 import { briefService } from '@/lib/api';
 import { Brief, BriefField } from '@/lib/types/brief';
-import { ArrowLeft, Save, FileText, CheckCircle2, Clock } from 'lucide-react';
+import { ArrowLeft, Save, FileText, CheckCircle2, Clock, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function BriefEditPage() {
@@ -21,6 +22,9 @@ export default function BriefEditPage() {
     const [activeSectionIndex, setActiveSectionIndex] = useState(0);
     const [fieldValues, setFieldValues] = useState<Record<string, any>>({});
     const [saving, setSaving] = useState<Set<string>>(new Set());
+    const [uploading, setUploading] = useState(false);
+    const [generating, setGenerating] = useState(false);
+    const [uploadedS3Keys, setUploadedS3Keys] = useState<Record<string, string[]>>({});
 
     useEffect(() => {
         loadBrief();
@@ -128,6 +132,85 @@ export default function BriefEditPage() {
         return groups;
     };
 
+    const handleFilesSelected = async (files: File[]) => {
+        const activeSection = brief!.sections[activeSectionIndex];
+        setUploading(true);
+
+        try {
+            const keys: string[] = [];
+            for (const file of files) {
+                toast.info(`Uploading ${file.name}...`);
+                const s3Key = await briefService.uploadFile(briefId, file);
+                keys.push(s3Key);
+                toast.success(`${file.name} uploaded successfully`);
+            }
+
+            // Store S3 keys for this section
+            setUploadedS3Keys(prev => ({
+                ...prev,
+                [activeSection.id]: [...(prev[activeSection.id] || []), ...keys],
+            }));
+
+            toast.success(`All ${files.length} file(s) uploaded successfully!`);
+        } catch (err: any) {
+            toast.error('Failed to upload files', {
+                description: err.message,
+            });
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    const handleGenerateWithAI = async () => {
+        const activeSection = brief!.sections[activeSectionIndex];
+        const sectionS3Keys = uploadedS3Keys[activeSection.id] || [];
+
+        if (sectionS3Keys.length === 0) {
+            toast.error('No documents uploaded', {
+                description: 'Please upload documents first before generating with AI',
+            });
+            return;
+        }
+
+        setGenerating(true);
+
+        try {
+            toast.info('Generating field values with AI...');
+
+            const response = await briefService.generateSectionValues({
+                sectionId: activeSection.id,
+                s3Keys: sectionS3Keys,
+            });
+
+            // Update field values from AI response
+            if (response.data && response.data.extractedData) {
+                const newValues: Record<string, any> = {};
+                Object.entries(response.data.extractedData).forEach(([key, value]) => {
+                    // Find the field with this fieldKey
+                    const field = activeSection.fields.find(f => f.fieldKey === key);
+                    if (field) {
+                        newValues[field.id] = value;
+                    }
+                });
+                setFieldValues(prev => ({ ...prev, ...newValues }));
+            }
+
+            toast.success('AI generation completed!', {
+                description: `Generated values for ${response.data?.saveResults?.updated || 0} fields`,
+            });
+
+            // Reload the brief to get updated values
+            await loadBrief();
+        } catch (err: any) {
+            toast.error('Failed to generate with AI', {
+                description: err.message,
+            });
+        } finally {
+            setGenerating(false);
+        }
+    };
+
+
     if (loading) {
         return (
             <ProtectedLayout role="CLIENT">
@@ -210,6 +293,46 @@ export default function BriefEditPage() {
                             <p className="text-sm text-gray-500 mt-1">
                                 Section {activeSectionIndex + 1} of {brief.sections.length}
                             </p>
+                        </div>
+
+                        {/* File Upload and AI Generation */}
+                        <div className="mb-8 p-6 bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-200 rounded-xl">
+                            <div className="flex items-center justify-between mb-4">
+                                <div>
+                                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                        <Sparkles className="w-5 h-5 text-emerald-600" />
+                                        AI-Powered Section Fill
+                                    </h3>
+                                    <p className="text-sm text-gray-600 mt-1">
+                                        Upload documents and let AI fill this section automatically
+                                    </p>
+                                </div>
+                                <button
+                                    onClick={handleGenerateWithAI}
+                                    disabled={generating || uploading || (uploadedS3Keys[activeSection.id]?.length || 0) === 0}
+                                    className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center gap-2"
+                                >
+                                    {generating ? (
+                                        <>
+                                            <Save className="w-4 h-4 animate-spin" />
+                                            Generating...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Sparkles className="w-4 h-4" />
+                                            Generate with AI
+                                        </>
+                                    )}
+                                </button>
+                            </div>
+                            <FileUpload
+                                onFilesSelected={handleFilesSelected}
+                                uploading={uploading}
+                                uploadedFiles={brief.documents?.map(doc => ({
+                                    name: doc.fileName,
+                                    s3Key: doc.s3Key,
+                                })) || []}
+                            />
                         </div>
 
                         {/* Field Groups */}
