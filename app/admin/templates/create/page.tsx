@@ -202,7 +202,7 @@ export default function CreateTemplatePage() {
     };
 
     return (
-        <ProtectedLayout>
+        <ProtectedLayout role="ADMIN">
             <div className="flex flex-col h-screen">
                 {/* Minimal Header - Only Progress Bar */}
                 <div className="bg-white border-b border-gray-200 shadow-sm px-8 py-2">

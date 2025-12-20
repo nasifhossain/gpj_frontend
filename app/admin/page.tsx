@@ -33,7 +33,7 @@ export default function AdminPage() {
     }, []);
 
     return (
-        <ProtectedLayout>
+        <ProtectedLayout role="ADMIN">
             <div className="p-8">
                 <div className="max-w-7xl mx-auto">
                     {/* Slim Header */}

@@ -38,9 +38,10 @@ export function LoginForm() {
 
             if (response.role === 'ADMIN') {
                 router.push('/admin');
+            } else if (response.role === 'CLIENT') {
+                router.push('/dashboard');
             } else {
-                // Ideally non-admins go somewhere else, but for now enforcing logic
-                toast.error('Unauthorized: Only admins can access this area.');
+                toast.error('Unauthorized: Invalid user role.');
             }
         } catch (err: any) {
             toast.error(err.message || 'Login failed. Please try again.');
@@ -68,7 +69,7 @@ export function LoginForm() {
                         autoComplete="email"
                         required
                         label="Email address"
-                        placeholder="admin@test.com"
+                        placeholder="you@example.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         className="transition-all duration-200 focus:ring-2 focus:ring-indigo-500/20"

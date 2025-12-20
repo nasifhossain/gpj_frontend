@@ -32,8 +32,8 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL('/unauthorized', request.url));
       }
 
-      // Client routes are accessible by both USER and ADMIN
-      if (isClientRoute && !['USER', 'ADMIN'].includes(decoded.role)) {
+      // Client routes are accessible by both CLIENT and ADMIN
+      if (isClientRoute && !['CLIENT', 'ADMIN'].includes(decoded.role)) {
          return NextResponse.redirect(new URL('/unauthorized', request.url));
       }
 
