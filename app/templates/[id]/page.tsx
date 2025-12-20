@@ -138,12 +138,19 @@ export default function BriefEditPage() {
 
         try {
             const keys: string[] = [];
-            for (const file of files) {
+            // for (const file of files) {
+            //     toast.info(`Uploading ${file.name}...`);
+            //     const s3Key = await briefService.uploadFile(briefId, file);
+            //     keys.push(s3Key);
+            //     toast.success(`${file.name} uploaded successfully`);
+            // }
+            // Upload all files in parallel
+            const filePromises = files.map((file) => {
                 toast.info(`Uploading ${file.name}...`);
-                const s3Key = await briefService.uploadFile(briefId, file);
-                keys.push(s3Key);
-                toast.success(`${file.name} uploaded successfully`);
-            }
+                return briefService.uploadFile(briefId, file);
+            });
+            const s3Keys = await Promise.all(filePromises);
+            keys.push(...s3Keys);
 
             // Store S3 keys for this section
             setUploadedS3Keys(prev => ({

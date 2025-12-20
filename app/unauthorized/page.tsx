@@ -13,7 +13,7 @@ export default function UnauthorizedPage() {
                 </div>
                 <div className="mt-5 sm:mt-8 sm:flex sm:justify-center">
                     <Link href="/login">
-                        <Button variant="default">Return to Login</Button>
+                        <Button variant="primary">Return to Login</Button>
                     </Link>
                 </div>
             </div>

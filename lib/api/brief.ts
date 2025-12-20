@@ -108,8 +108,8 @@ export const briefService = {
     });
 
     // Step 2: Upload to S3
-    await briefService.uploadToS3(signedUrlResponse.url, file);
-
+   const res =  await briefService.uploadToS3(signedUrlResponse.url, file);
+    console.log("S3 upload response: ", res);
     // Step 3: Confirm upload
     await briefService.confirmUpload({
       briefId,
