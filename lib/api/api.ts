@@ -1,4 +1,5 @@
-const API_BASE_URL = 'http://localhost';
+// const API_BASE_URL = 'http://localhost';
+const API_BASE_URL = 'http://ec2-51-20-188-230.eu-north-1.compute.amazonaws.com';
 
 interface RequestOptions extends RequestInit {
   requiredAuth?: boolean;

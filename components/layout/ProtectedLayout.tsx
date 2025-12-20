@@ -56,22 +56,10 @@ const RoleSidebar: React.FC<{ role: 'ADMIN' | 'CLIENT' }> = ({ role }) => {
                     active: pathname === '/dashboard',
                 },
                 {
-                    name: 'Projects',
-                    href: '/dashboard/projects',
-                    icon: FolderOpen,
-                    active: pathname.startsWith('/dashboard/projects'),
-                },
-                {
                     name: 'Templates',
                     href: '/templates',
                     icon: FileText,
                     active: pathname.startsWith('/templates'),
-                },
-                {
-                    name: 'Activity',
-                    href: '/dashboard/activity',
-                    icon: Activity,
-                    active: pathname.startsWith('/dashboard/activity'),
                 },
             ];
         }
