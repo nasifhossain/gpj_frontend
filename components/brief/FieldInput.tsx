@@ -9,6 +9,49 @@ interface FieldInputProps {
     disabled?: boolean;
 }
 
+// Helper function to convert various date formats to YYYY-MM-DD for HTML date input
+function convertToHtmlDateFormat(dateValue: any): string {
+    if (!dateValue) return '';
+
+    const dateStr = String(dateValue).trim();
+
+    // Already in YYYY-MM-DD format
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+        return dateStr;
+    }
+
+    // Handle DD-MM-YYYY format (e.g., "29-09-2025")
+    if (/^\d{1,2}-\d{1,2}-\d{4}$/.test(dateStr)) {
+        const [day, month, year] = dateStr.split('-');
+        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+
+    // Handle M/D/YYYY format (e.g., "9/29/2025")
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(dateStr)) {
+        const parts = dateStr.split('/');
+        // Check if it's M/D/YYYY or D/M/YYYY
+        const month = parts[0];
+        const day = parts[1];
+        const year = parts[2];
+        return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+    }
+
+    // Try to parse as a Date object
+    try {
+        const date = new Date(dateStr);
+        if (!isNaN(date.getTime())) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+    } catch (e) {
+        // Fall through
+    }
+
+    return '';
+}
+
 export function FieldInput({ field, value, onChange, disabled = false }: FieldInputProps) {
     const currentValue = value ?? field.value?.value ?? field.options.defaultValue ?? '';
     const isAIGenerated = field.value?.source === 'AI';
@@ -23,7 +66,7 @@ export function FieldInput({ field, value, onChange, disabled = false }: FieldIn
                         disabled={disabled}
                         className="w-full px-4 py-3 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                     >
-                        <option value="">Se select an option</option>
+                        <option value="">Select an option</option>
                         {field.options.dropdownOptions?.map((option) => (
                             <option key={option} value={option}>
                                 {option}
@@ -47,10 +90,13 @@ export function FieldInput({ field, value, onChange, disabled = false }: FieldIn
             case 'input':
             default:
                 if (field.dataType === 'Date') {
+                    // Convert the date value to YYYY-MM-DD format for HTML date input
+                    const htmlDateValue = convertToHtmlDateFormat(currentValue);
+
                     return (
                         <input
                             type="date"
-                            value={currentValue}
+                            value={htmlDateValue}
                             onChange={(e) => onChange(e.target.value)}
                             disabled={disabled}
                             className="w-full px-4 py-3 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
@@ -59,7 +105,7 @@ export function FieldInput({ field, value, onChange, disabled = false }: FieldIn
                 }
 
                 if (field.dataType === 'Object') {
-                    // For Object types like {Name, Email}, render as JSON textarea for now
+                    // For Object types like {Name, Email}, render as JSON textarea
                     const objValue = typeof currentValue === 'string' ? currentValue : JSON.stringify(currentValue, null, 2);
                     return (
                         <textarea

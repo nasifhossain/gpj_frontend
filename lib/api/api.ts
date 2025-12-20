@@ -1,4 +1,6 @@
-const API_BASE_URL = 'http://localhost';
+// Next.js automatically loads environment variables from .env files
+// Use NEXT_PUBLIC_ prefix for client-side access
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URI || 'http://localhost';
 
 interface RequestOptions extends RequestInit {
   requiredAuth?: boolean;
