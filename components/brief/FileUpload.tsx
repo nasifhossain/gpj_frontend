@@ -4,8 +4,8 @@ import { Upload, X, FileText, Loader2 } from 'lucide-react';
 interface FileUploadProps {
     onFilesSelected: (files: File[]) => void;
     uploading?: boolean;
-    uploadedFiles?: Array<{ name: string; s3Key: string }>;
-    onRemoveFile?: (s3Key: string) => void;
+    uploadedFiles?: Array<{ id: string; name: string; s3Key: string }>;
+    onRemoveFile?: (documentId: string) => void;
 }
 
 export function FileUpload({ onFilesSelected, uploading = false, uploadedFiles = [], onRemoveFile }: FileUploadProps) {
@@ -50,8 +50,8 @@ export function FileUpload({ onFilesSelected, uploading = false, uploadedFiles =
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
                 className={`relative border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all ${dragActive
-                        ? 'border-emerald-500 bg-emerald-50'
-                        : 'border-gray-300 hover:border-emerald-400 hover:bg-gray-50'
+                    ? 'border-emerald-500 bg-emerald-50'
+                    : 'border-gray-300 hover:border-emerald-400 hover:bg-gray-50'
                     }`}
             >
                 <input
@@ -94,7 +94,7 @@ export function FileUpload({ onFilesSelected, uploading = false, uploadedFiles =
                     <div className="space-y-2">
                         {uploadedFiles.map((file) => (
                             <div
-                                key={file.s3Key}
+                                key={file.id}
                                 className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg"
                             >
                                 <div className="flex items-center gap-3">
@@ -103,11 +103,11 @@ export function FileUpload({ onFilesSelected, uploading = false, uploadedFiles =
                                 </div>
                                 {onRemoveFile && (
                                     <button
-                                        onClick={() => onRemoveFile(file.s3Key)}
-                                        className="p-1 hover:bg-gray-200 rounded transition-colors"
+                                        onClick={() => onRemoveFile(file.id)}
+                                        className="p-1 hover:bg-red-100 rounded transition-colors group"
                                         title="Remove file"
                                     >
-                                        <X className="w-4 h-4 text-gray-500" />
+                                        <X className="w-4 h-4 text-gray-500 group-hover:text-red-600" />
                                     </button>
                                 )}
                             </div>

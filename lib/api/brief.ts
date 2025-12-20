@@ -101,6 +101,16 @@ export const briefService = {
   },
 
   /**
+   * Delete an uploaded document
+   */
+  deleteDocument: async (documentId: string): Promise<any> => {
+    return api.delete('/upload/delete', {
+      requiredAuth: true,
+      body: JSON.stringify({ documentId }),
+    });
+  },
+
+  /**
    * Complete upload workflow: get signed URL, upload to S3, confirm
    */
   uploadFile: async (briefId: string, sectionId: string, file: File): Promise<string> => {

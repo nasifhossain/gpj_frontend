@@ -130,6 +130,23 @@ export default function BriefEditPage() {
         }
     };
 
+    const handleDeleteDocument = async (documentId: string) => {
+        try {
+            toast.info('Deleting document...');
+
+            await briefService.deleteDocument(documentId);
+
+            toast.success('Document deleted successfully');
+
+            // Reload brief to get updated documents list
+            await loadBrief();
+        } catch (err: any) {
+            toast.error('Failed to delete document', {
+                description: err.message,
+            });
+        }
+    };
+
     const handleGenerateWithAI = async () => {
         const activeSection = brief!.sections[activeSectionIndex];
 
@@ -350,9 +367,11 @@ export default function BriefEditPage() {
                                     uploadedFiles={brief.documents
                                         ?.filter(doc => doc.sectionId === activeSection.id)
                                         .map(doc => ({
+                                            id: doc.id,
                                             name: doc.fileName,
                                             s3Key: doc.s3Key,
                                         })) || []}
+                                    onRemoveFile={handleDeleteDocument}
                                 />
                             </div>
                         )}
