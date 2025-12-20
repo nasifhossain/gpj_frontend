@@ -24,7 +24,6 @@ export default function BriefEditPage() {
     const [uploading, setUploading] = useState(false);
     const [generating, setGenerating] = useState(false);
     const [savingSection, setSavingSection] = useState(false);
-    const [uploadedS3Keys, setUploadedS3Keys] = useState<Record<string, string[]>>({});
 
     useEffect(() => {
         loadBrief();
@@ -111,28 +110,17 @@ export default function BriefEditPage() {
         setUploading(true);
 
         try {
-            const keys: string[] = [];
-            // for (const file of files) {
-            //     toast.info(`Uploading ${file.name}...`);
-            //     const s3Key = await briefService.uploadFile(briefId, file);
-            //     keys.push(s3Key);
-            //     toast.success(`${file.name} uploaded successfully`);
-            // }
             // Upload all files in parallel
             const filePromises = files.map((file) => {
                 toast.info(`Uploading ${file.name}...`);
-                return briefService.uploadFile(briefId, file);
+                return briefService.uploadFile(briefId, activeSection.id, file);
             });
-            const s3Keys = await Promise.all(filePromises);
-            keys.push(...s3Keys);
-
-            // Store S3 keys for this section
-            setUploadedS3Keys(prev => ({
-                ...prev,
-                [activeSection.id]: [...(prev[activeSection.id] || []), ...keys],
-            }));
+            await Promise.all(filePromises);
 
             toast.success(`All ${files.length} file(s) uploaded successfully!`);
+
+            // Reload brief to get updated documents list
+            await loadBrief();
         } catch (err: any) {
             toast.error('Failed to upload files', {
                 description: err.message,
@@ -144,7 +132,10 @@ export default function BriefEditPage() {
 
     const handleGenerateWithAI = async () => {
         const activeSection = brief!.sections[activeSectionIndex];
-        const sectionS3Keys = uploadedS3Keys[activeSection.id] || [];
+
+        // Get S3 keys from documents that belong to this section
+        const sectionDocuments = brief!.documents?.filter(doc => doc.sectionId === activeSection.id) || [];
+        const sectionS3Keys = sectionDocuments.map(doc => doc.s3Key);
 
         if (sectionS3Keys.length === 0) {
             toast.error('No documents uploaded', {
@@ -337,7 +328,7 @@ export default function BriefEditPage() {
                                     </div>
                                     <button
                                         onClick={handleGenerateWithAI}
-                                        disabled={generating || uploading || (uploadedS3Keys[activeSection.id]?.length || 0) === 0}
+                                        disabled={generating || uploading || (brief.documents?.filter(doc => doc.sectionId === activeSection.id).length || 0) === 0}
                                         className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-700 hover:to-teal-700 disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center gap-2"
                                     >
                                         {generating ? (
@@ -356,10 +347,12 @@ export default function BriefEditPage() {
                                 <FileUpload
                                     onFilesSelected={handleFilesSelected}
                                     uploading={uploading}
-                                    uploadedFiles={brief.documents?.map(doc => ({
-                                        name: doc.fileName,
-                                        s3Key: doc.s3Key,
-                                    })) || []}
+                                    uploadedFiles={brief.documents
+                                        ?.filter(doc => doc.sectionId === activeSection.id)
+                                        .map(doc => ({
+                                            name: doc.fileName,
+                                            s3Key: doc.s3Key,
+                                        })) || []}
                                 />
                             </div>
                         )}

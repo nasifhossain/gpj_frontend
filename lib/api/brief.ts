@@ -20,6 +20,7 @@ interface ConfirmUploadRequest {
   fileName: string;
   fileType: string;
   s3Key: string;
+  sectionId: string;
 }
 
 interface GenerateSectionRequest {
@@ -102,7 +103,7 @@ export const briefService = {
   /**
    * Complete upload workflow: get signed URL, upload to S3, confirm
    */
-  uploadFile: async (briefId: string, file: File): Promise<string> => {
+  uploadFile: async (briefId: string, sectionId: string, file: File): Promise<string> => {
     // Determine file type based on extension
     const extension = file.name.split('.').pop()?.toUpperCase() || 'UNKNOWN';
     const fileType = extension === 'PPTX' ? 'PPTX' : 
@@ -118,14 +119,16 @@ export const briefService = {
     });
 
     // Step 2: Upload to S3
-   const res =  await briefService.uploadToS3(signedUrlResponse.url, file);
+    const res = await briefService.uploadToS3(signedUrlResponse.url, file);
     console.log("S3 upload response: ", res);
-    // Step 3: Confirm upload
+    
+    // Step 3: Confirm upload with sectionId
     await briefService.confirmUpload({
       briefId,
       fileName: file.name,
       fileType,
       s3Key: signedUrlResponse.key,
+      sectionId,
     });
 
     return signedUrlResponse.key;

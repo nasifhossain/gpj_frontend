@@ -43,6 +43,7 @@ export interface BriefSection {
 export interface BriefDocument {
   id: string;
   briefId: string;
+  sectionId: string;
   fileName: string;
   fileType: string;
   s3Key: string;
