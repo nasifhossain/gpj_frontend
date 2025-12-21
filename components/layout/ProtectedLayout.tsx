@@ -41,9 +41,15 @@ const RoleSidebar: React.FC<{ role: 'ADMIN' | 'CLIENT' }> = ({ role }) => {
                 },
                 {
                     name: 'Templates',
-                    href: '/admin/templates/create',
+                    href: '/admin/templates',
                     icon: FileText,
                     active: pathname.startsWith('/admin/templates'),
+                },
+                {
+                    name: 'Submissions',
+                    href: '/admin/submissions',
+                    icon: Activity,
+                    active: pathname.startsWith('/admin/submissions'),
                 },
             ];
         } else {

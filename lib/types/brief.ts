@@ -78,3 +78,40 @@ export interface BriefResponse {
   message: string;
   data: Brief;
 }
+
+// Submission-related types for admin view
+export interface SubmissionUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+}
+
+export interface TemplateField {
+  inputName: string;
+  dataType: string;
+  fieldType: string;
+  options?: string[];
+  helperText?: string[];
+  inputValue?: any;
+  prompt?: string;
+}
+
+export interface TemplateFieldsHeading {
+  fieldsHeading: string;
+  fields: TemplateField[];
+}
+
+export interface TemplateSection {
+  sectionName: string;
+  id: string;
+  inputFields: TemplateFieldsHeading[];
+}
+
+export interface TemplateSubmission {
+  id: string;
+  title: string;
+  templateName: string;
+  submissions: SubmissionUser[];
+  sections: TemplateSection[];
+}
