@@ -4,6 +4,7 @@ export interface FieldOption {
 }
 
 export interface InputField {
+  id?: string;
   inputName: string;
   dataType: string; // 'String', 'Date', 'Array', 'Object', etc.
   fieldType: string; // 'input', 'dropdown', 'textarea', etc.
@@ -14,6 +15,7 @@ export interface InputField {
 }
 
 export interface Section {
+  id?: string;
   sectionName: string;
   inputFields: {
     fieldsHeading: string;

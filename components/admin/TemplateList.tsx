@@ -5,9 +5,10 @@ import { TemplateCard } from './TemplateCard';
 interface TemplateListProps {
     templates: Template[];
     onSelectTemplate: (template: Template) => void;
+    onEditTemplate?: (template: Template) => void;
 }
 
-export const TemplateList: React.FC<TemplateListProps> = ({ templates, onSelectTemplate }) => {
+export const TemplateList: React.FC<TemplateListProps> = ({ templates, onSelectTemplate, onEditTemplate }) => {
     if (!templates || templates.length === 0) {
         return (
             <div className="text-center py-12">
@@ -23,6 +24,7 @@ export const TemplateList: React.FC<TemplateListProps> = ({ templates, onSelectT
                     key={`${template.templateName}-${index}`}
                     template={template}
                     onClick={onSelectTemplate}
+                    onEdit={onEditTemplate}
                 />
             ))}
         </div>

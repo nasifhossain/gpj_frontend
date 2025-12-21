@@ -1,5 +1,7 @@
 "use client";
 
+import { Template } from '@/lib/types';
+
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import { TemplateList } from '@/components/admin/TemplateList';
@@ -12,6 +14,10 @@ import { Plus } from 'lucide-react';
 export default function AdminPage() {
     const router = useRouter();
     const { templates, selectedTemplate, loading, error, setSelectedTemplate } = useTemplates();
+
+    const handleEditTemplate = (template: Template) => {
+        router.push(`/admin/templates/${template.id}/edit`);
+    };
 
     return (
         <ProtectedLayout role="ADMIN">
@@ -55,6 +61,7 @@ export default function AdminPage() {
                             <TemplateList
                                 templates={templates}
                                 onSelectTemplate={setSelectedTemplate}
+                                onEditTemplate={handleEditTemplate}
                             />
                         </div>
                     )}
