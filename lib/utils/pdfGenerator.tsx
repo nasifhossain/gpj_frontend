@@ -2,6 +2,36 @@ import { pdf } from '@react-pdf/renderer';
 import { Brief } from '@/lib/types/brief';
 import { BriefPDFDocument } from '@/components/pdf/BriefPDFDocument';
 import React from 'react';
+import Cookies from 'js-cookie';
+import { jwtDecode } from 'jwt-decode';
+
+interface DecodedToken {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    exp: number;
+}
+
+/**
+ * Gets user information from JWT token
+ * @returns User info object or null if token is invalid
+ */
+const getUserFromToken = (): { name: string; email: string } | null => {
+    try {
+        const token = Cookies.get('token');
+        if (!token) return null;
+
+        const decoded = jwtDecode<DecodedToken>(token);
+        return {
+            name: decoded.name,
+            email: decoded.email,
+        };
+    } catch (error) {
+        console.error('Error decoding token:', error);
+        return null;
+    }
+};
 
 /**
  * Generates a PDF blob from brief data
@@ -10,8 +40,11 @@ import React from 'react';
  */
 export const generateBriefPDF = async (brief: Brief): Promise<Blob> => {
     try {
+        // Get current user info from token
+        const user = getUserFromToken();
+
         // Generate the PDF blob
-        const blob = await pdf(<BriefPDFDocument brief={brief} />).toBlob();
+        const blob = await pdf(<BriefPDFDocument brief={brief} user={user || undefined} />).toBlob();
 
         return blob;
     } catch (error) {
