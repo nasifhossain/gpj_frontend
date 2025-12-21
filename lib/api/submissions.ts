@@ -23,4 +23,14 @@ export const submissionsService = {
     }
     return template;
   },
+
+  /**
+   * Get detailed submission data for a specific user and template
+   * @param templateId - The ID of the template
+   * @param userId - The ID of the user
+   * @returns Promise<Brief> - The detailed brief with all field values
+   */
+  getUserSubmission: async (templateId: string, userId: string): Promise<any> => {
+    return api.get<any>(`/briefs/templates/${templateId}/user/${userId}`, { requiredAuth: true });
+  },
 };

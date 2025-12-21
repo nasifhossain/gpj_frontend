@@ -80,7 +80,11 @@ export const SubmissionDetail: React.FC<SubmissionDetailProps> = ({ template, on
                             </thead>
                             <tbody className="divide-y divide-gray-200">
                                 {template.submissions.map((submission, index) => (
-                                    <tr key={submission.id} className="hover:bg-gray-50 transition-colors">
+                                    <tr
+                                        key={submission.id}
+                                        onClick={() => window.location.href = `/admin/submissions/${template.id}/user/${submission.id}`}
+                                        className="hover:bg-emerald-50 transition-colors cursor-pointer"
+                                    >
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center gap-3">
                                                 <div className="w-8 h-8 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-full flex items-center justify-center">
@@ -96,8 +100,8 @@ export const SubmissionDetail: React.FC<SubmissionDetailProps> = ({ template, on
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${submission.role === 'ADMIN'
-                                                    ? 'bg-purple-100 text-purple-800'
-                                                    : 'bg-blue-100 text-blue-800'
+                                                ? 'bg-purple-100 text-purple-800'
+                                                : 'bg-blue-100 text-blue-800'
                                                 }`}>
                                                 {submission.role}
                                             </span>
