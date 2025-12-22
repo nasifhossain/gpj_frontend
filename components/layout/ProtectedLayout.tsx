@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, FileText, LogOut, Sparkles, FolderOpen, Activity, Settings } from 'lucide-react';
+import { LayoutDashboard, FileText, LogOut, Sparkles, FolderOpen, Activity, Settings, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { PanelLeft, PanelLeftClose } from 'lucide-react';
 import Cookies from 'js-cookie';
@@ -50,6 +50,12 @@ const RoleSidebar: React.FC<{ role: 'ADMIN' | 'CLIENT' }> = ({ role }) => {
                     href: '/admin/submissions',
                     icon: Activity,
                     active: pathname.startsWith('/admin/submissions'),
+                },
+                {
+                    name: 'Users',
+                    href: '/admin/users',
+                    icon: Users,
+                    active: pathname.startsWith('/admin/users'),
                 },
             ];
         } else {
