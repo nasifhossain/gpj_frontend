@@ -111,6 +111,19 @@ export const briefService = {
   },
 
   /**
+   * View a document from S3 in a new tab
+   */
+  viewDocument: async (s3Key: string): Promise<void> => {
+    const response = await api.get<{ data: { downloadUrl: string } }>(
+      `/download?s3Key=${encodeURIComponent(s3Key)}`,
+      { requiredAuth: true }
+    );
+    
+    // Open the pre-signed S3 URL in a new tab
+    window.open(response.data.downloadUrl, '_blank');
+  },
+
+  /**
    * Complete upload workflow: get signed URL, upload to S3, confirm
    */
   uploadFile: async (briefId: string, sectionId: string, file: File): Promise<string> => {

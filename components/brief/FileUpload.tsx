@@ -1,14 +1,15 @@
 import React, { useRef, useState } from 'react';
-import { Upload, X, FileText, Loader2 } from 'lucide-react';
+import { Upload, X, FileText, Loader2, Eye } from 'lucide-react';
 
 interface FileUploadProps {
     onFilesSelected: (files: File[]) => void;
     uploading?: boolean;
     uploadedFiles?: Array<{ id: string; name: string; s3Key: string }>;
     onRemoveFile?: (documentId: string) => void;
+    onViewFile?: (s3Key: string) => void;
 }
 
-export function FileUpload({ onFilesSelected, uploading = false, uploadedFiles = [], onRemoveFile }: FileUploadProps) {
+export function FileUpload({ onFilesSelected, uploading = false, uploadedFiles = [], onRemoveFile, onViewFile }: FileUploadProps) {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [dragActive, setDragActive] = useState(false);
 
@@ -101,15 +102,26 @@ export function FileUpload({ onFilesSelected, uploading = false, uploadedFiles =
                                     <FileText className="w-5 h-5 text-emerald-600" />
                                     <span className="text-sm text-gray-700">{file.name}</span>
                                 </div>
-                                {onRemoveFile && (
-                                    <button
-                                        onClick={() => onRemoveFile(file.id)}
-                                        className="p-1 hover:bg-red-100 rounded transition-colors group"
-                                        title="Remove file"
-                                    >
-                                        <X className="w-4 h-4 text-gray-500 group-hover:text-red-600" />
-                                    </button>
-                                )}
+                                <div className="flex items-center gap-2">
+                                    {onViewFile && (
+                                        <button
+                                            onClick={() => onViewFile(file.s3Key)}
+                                            className="p-1 hover:bg-emerald-100 rounded transition-colors group"
+                                            title="View file"
+                                        >
+                                            <Eye className="w-4 h-4 text-gray-500 group-hover:text-emerald-600" />
+                                        </button>
+                                    )}
+                                    {onRemoveFile && (
+                                        <button
+                                            onClick={() => onRemoveFile(file.id)}
+                                            className="p-1 hover:bg-red-100 rounded transition-colors group"
+                                            title="Remove file"
+                                        >
+                                            <X className="w-4 h-4 text-gray-500 group-hover:text-red-600" />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                         ))}
                     </div>

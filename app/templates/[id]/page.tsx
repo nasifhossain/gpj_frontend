@@ -149,6 +149,16 @@ export default function BriefEditPage() {
         }
     };
 
+    const handleViewDocument = async (s3Key: string) => {
+        try {
+            await briefService.viewDocument(s3Key);
+        } catch (err: any) {
+            toast.error('Failed to open document', {
+                description: err.message,
+            });
+        }
+    };
+
     const handleGenerateWithAI = async () => {
         const activeSection = brief!.sections[activeSectionIndex];
 
@@ -396,6 +406,7 @@ export default function BriefEditPage() {
                                             s3Key: doc.s3Key,
                                         })) || []}
                                     onRemoveFile={handleDeleteDocument}
+                                    onViewFile={handleViewDocument}
                                 />
                             </div>
                         )}
