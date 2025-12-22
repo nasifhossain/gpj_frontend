@@ -53,7 +53,7 @@ function convertToHtmlDateFormat(dateValue: any): string {
 }
 
 export function FieldInput({ field, value, onChange, disabled = false }: FieldInputProps) {
-    const currentValue = value ?? field.value?.value ?? field.options.defaultValue ?? '';
+    const currentValue = value ?? field.value?.value ?? field.options?.defaultValue ?? '';
     const isAIGenerated = field.value?.source === 'AI';
 
     const renderInput = () => {
@@ -67,7 +67,7 @@ export function FieldInput({ field, value, onChange, disabled = false }: FieldIn
                         className="w-full px-4 py-3 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                     >
                         <option value="">Select an option</option>
-                        {field.options.dropdownOptions?.map((option) => (
+                        {field.options?.dropdownOptions?.map((option) => (
                             <option key={option} value={option}>
                                 {option}
                             </option>
@@ -83,7 +83,7 @@ export function FieldInput({ field, value, onChange, disabled = false }: FieldIn
                         disabled={disabled}
                         rows={6}
                         className="w-full px-4 py-3 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed resize-y"
-                        placeholder={field.options.helperText?.[0] || `Enter ${field.label.toLowerCase()}...`}
+                        placeholder={field.options?.helperText?.[0] || `Enter ${field.label.toLowerCase()}...`}
                     />
                 );
 
@@ -164,8 +164,8 @@ export function FieldInput({ field, value, onChange, disabled = false }: FieldIn
                 )}
             </label>
             {renderInput()}
-            {field.options.helperText && field.fieldType !== 'textarea' && (
-                <p className="text-xs text-gray-500 mt-1">{field.options.helperText[0]}</p>
+            {field.options?.helperText && field.fieldType !== 'textarea' && (
+                <p className="text-xs text-gray-500 mt-1">{field.options?.helperText?.[0]}</p>
             )}
         </div>
     );
