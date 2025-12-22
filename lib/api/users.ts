@@ -11,7 +11,14 @@ export const usersService = {
   },
 
   updateUser: async (userId: string, userData: UpdateUserRequest): Promise<User> => {
-    return api.put<User>(`/users/${userId}`, userData, { requiredAuth: true });
+    // Only send fields that are provided
+    const payload: any = {};
+    if (userData.name) payload.name = userData.name;
+    if (userData.role) payload.role = userData.role;
+    if (userData.email) payload.email = userData.email;
+    if (userData.password) payload.password = userData.password;
+    
+    return api.put<User>(`/users/${userId}`, payload, { requiredAuth: true });
   },
 
   deleteUser: async (userId: string): Promise<void> => {
