@@ -189,43 +189,43 @@ export default function EditTemplatePage() {
         <ProtectedLayout role="ADMIN">
             <div className="flex flex-col h-screen bg-gray-50">
                 {/* Header */}
-                <div className="bg-white border-b border-gray-200 shadow-sm">
-                    <div className="max-w-7xl mx-auto px-6 py-4">
+                <div className="bg-white border-b border-gray-200">
+                    <div className="max-w-7xl mx-auto px-4 py-2.5">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-4">
-                                <button
-                                    onClick={() => router.push('/admin/templates')}
-                                    className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                                    title="Back to templates"
-                                >
-                                    <ArrowLeft className="w-5 h-5 text-gray-600" />
-                                </button>
-                                <div>
-                                    <h1 className="text-xl font-bold text-gray-900">Edit Template</h1>
-                                    <p className="text-sm text-gray-500 mt-0.5">Make changes to your template</p>
-                                </div>
-                            </div>
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => router.push('/admin/templates')}
-                                    className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                                    className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                                    title="Back to templates"
                                 >
-                                    <X className="w-4 h-4" />
+                                    <ArrowLeft className="w-4 h-4 text-gray-600" />
+                                </button>
+                                <div>
+                                    <h1 className="text-base font-semibold text-gray-900">Edit Template</h1>
+                                    <p className="text-xs text-gray-500">Make changes to your template</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => router.push('/admin/templates')}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                                >
+                                    <X className="w-3.5 h-3.5" />
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleSubmit}
                                     disabled={isSubmitting}
-                                    className="flex items-center gap-2 px-5 py-2 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-md hover:from-emerald-700 hover:to-teal-700 transition-all shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isSubmitting ? (
                                         <>
-                                            <Loader2 className="w-4 h-4 animate-spin" />
+                                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
                                             Saving...
                                         </>
                                     ) : (
                                         <>
-                                            <Save className="w-4 h-4" />
+                                            <Save className="w-3.5 h-3.5" />
                                             Save Changes
                                         </>
                                     )}
@@ -236,30 +236,30 @@ export default function EditTemplatePage() {
                 </div>
 
                 {/* Basic Info Section */}
-                <div className="bg-white border-b border-gray-200 px-6 py-4">
+                <div className="bg-white border-b border-gray-200 px-4 py-2.5">
                     <div className="max-w-7xl mx-auto">
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
                                     Template Name <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     value={templateName}
                                     onChange={(e) => setTemplateName(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                                    className="w-full px-2.5 text-black py-1.5 border border-gray-300 rounded-md text-xs focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
                                     placeholder="e.g., Client Brief Template"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
                                     Template Title <span className="text-red-500">*</span>
                                 </label>
                                 <input
                                     type="text"
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                                    className="w-full px-2.5 text-black py-1.5 border border-gray-300 rounded-md text-xs focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
                                     placeholder="e.g., Client Information Brief"
                                 />
                             </div>
@@ -313,10 +313,10 @@ export default function EditTemplatePage() {
                     ) : (
                         <div className="flex-1 flex items-center justify-center bg-gray-50">
                             <div className="text-center max-w-md px-6">
-                                <p className="text-gray-500 mb-4">No sections yet</p>
+                                <p className="text-sm text-gray-500 mb-3">No sections yet</p>
                                 <button
                                     onClick={addSection}
-                                    className="px-5 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md"
+                                    className="px-4 py-2 text-xs font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-md hover:from-emerald-700 hover:to-teal-700 transition-all shadow-sm"
                                 >
                                     Add First Section
                                 </button>

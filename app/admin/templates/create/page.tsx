@@ -5,19 +5,14 @@ import { useRouter } from 'next/navigation';
 import { Template, Section, InputField } from '@/lib/types';
 import { templateService } from '@/lib/api';
 import { toast } from 'sonner';
-import { ArrowLeft, ArrowRight, Loader2, Sparkles } from 'lucide-react';
-import { StepTabs } from '@/components/admin/template-wizard/StepTabs';
-import { BasicInfoStep } from '@/components/admin/template-wizard/BasicInfoStep';
+import { ArrowLeft, Loader2, Sparkles, X } from 'lucide-react';
 import { SectionEditorStep } from '@/components/admin/template-wizard/SectionEditorStep';
 import { SectionTabsBar } from '@/components/admin/template-wizard/SectionTabsBar';
-import { SectionContextHeader } from '@/components/admin/template-wizard/SectionContextHeader';
 import { FieldGroupSidebar } from '@/components/admin/template-wizard/FieldGroupSidebar';
-import { ReviewStep } from '@/components/admin/template-wizard/ReviewStep';
 import { ProtectedLayout } from '@/components/layout/ProtectedLayout';
 
 export default function CreateTemplatePage() {
     const router = useRouter();
-    const [currentStep, setCurrentStep] = useState(1);
     const [templateName, setTemplateName] = useState('');
     const [title, setTitle] = useState('');
     const [sections, setSections] = useState<Section[]>([]);
@@ -25,13 +20,6 @@ export default function CreateTemplatePage() {
     const [activeGroupIndex, setActiveGroupIndex] = useState(0);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errors, setErrors] = useState<{ templateName?: string; title?: string }>({});
-
-    // Progress bar steps
-    const steps = [
-        { id: 1, name: 'Basic Info', status: currentStep > 1 ? 'complete' as const : currentStep === 1 ? 'current' as const : 'upcoming' as const },
-        { id: 2, name: 'Add Sections', status: currentStep > 2 ? 'complete' as const : currentStep === 2 ? 'current' as const : 'upcoming' as const },
-        { id: 3, name: 'Review', status: currentStep === 3 ? 'current' as const : 'upcoming' as const },
-    ];
 
     // Section management
     const addSection = () => {
@@ -137,42 +125,10 @@ export default function CreateTemplatePage() {
         return Object.keys(newErrors).length === 0;
     };
 
-    // Navigation
-    const handleNext = () => {
-        if (currentStep === 1) {
-            if (!validateStep1()) {
-                toast.error('Please fill in all required fields');
-                return;
-            }
-        }
-
-        if (currentStep < 3) {
-            setCurrentStep(currentStep + 1);
-        }
-    };
-
-    const handlePrevious = () => {
-        if (currentStep > 1) {
-            setCurrentStep(currentStep - 1);
-        }
-    };
-
-    const handleStepClick = (stepId: number) => {
-        if (stepId === 1 || (stepId === 2 && validateStep1()) || stepId <= currentStep) {
-            setCurrentStep(stepId);
-        }
-    };
-
-    const handleEditSection = (sectionIndex: number) => {
-        setActiveSectionIndex(sectionIndex);
-        setCurrentStep(2);
-    };
-
     // Submit
     const handleSubmit = async () => {
         if (!validateStep1()) {
-            toast.error('Please fill in all required fields');
-            setCurrentStep(1);
+            toast.error('Please fill in template name and title');
             return;
         }
 
@@ -191,7 +147,7 @@ export default function CreateTemplatePage() {
                 description: `"${templateName}" has been created.`,
             });
 
-            router.push('/admin');
+            router.push('/admin/templates');
         } catch (error: any) {
             toast.error('Failed to create template', {
                 description: error.message || 'Please try again later.',
@@ -203,186 +159,162 @@ export default function CreateTemplatePage() {
 
     return (
         <ProtectedLayout role="ADMIN">
-            <div className="flex flex-col h-screen">
-                {/* Minimal Header - Only Progress Bar */}
-                <div className="bg-white border-b border-gray-200 shadow-sm px-8 py-2">
-                    <div className="max-w-7xl mx-auto flex justify-center">
-                        <StepTabs steps={steps} onStepClick={handleStepClick} />
-                    </div>
-                </div>
-
-                {/* Content */}
-                <div className="flex-1">
-                    {currentStep === 1 && (
-                        <div className="py-12">
-                            <BasicInfoStep
-                                templateName={templateName}
-                                title={title}
-                                onTemplateNameChange={setTemplateName}
-                                onTitleChange={setTitle}
-                                errors={errors}
-                            />
-                        </div>
-                    )}
-
-
-                    {currentStep === 2 && (
-                        <div className="flex flex-col h-[calc(100vh-200px)]">
-                            {/* Section Tabs Bar */}
-                            {sections.length > 0 && (
-                                <SectionTabsBar
-                                    sections={sections}
-                                    activeSectionIndex={activeSectionIndex}
-                                    onSectionClick={setActiveSectionIndex}
-                                    onAddSection={addSection}
-                                    onRemoveSection={removeSection}
-                                    onUpdateSectionName={updateSectionName}
-                                />
-                            )}
-
-                            {/* Main Content Area */}
-                            {sections.length > 0 ? (
-                                <>
-                                    {/* Section Context Header */}
-                                    <SectionContextHeader
-                                        templateName={templateName}
-                                        sectionName={sections[activeSectionIndex]?.sectionName}
-                                        sectionIndex={activeSectionIndex}
-                                        onEditSection={() => {
-                                            // Focus on section name in tabs
-                                            const sectionName = prompt('Enter section name:', sections[activeSectionIndex]?.sectionName);
-                                            if (sectionName) updateSectionName(activeSectionIndex, sectionName);
-                                        }}
-                                        onDeleteSection={() => {
-                                            if (confirm('Are you sure you want to delete this section?')) {
-                                                removeSection(activeSectionIndex);
-                                            }
-                                        }}
-                                    />
-
-                                    <div className="flex flex-1 overflow-hidden">
-                                        {/* Field Group Sidebar */}
-                                        <FieldGroupSidebar
-                                            fieldGroups={sections[activeSectionIndex]?.inputFields || []}
-                                            activeGroupIndex={activeGroupIndex}
-                                            onGroupClick={setActiveGroupIndex}
-                                            onAddGroup={addFieldGroup}
-                                            onRemoveGroup={removeFieldGroup}
-                                            onUpdateGroupName={(index, name) => updateFieldGroupHeading(index, name)}
-                                        />
-
-                                        {/* Field Editor */}
-                                        <div className="flex-1 overflow-y-auto">
-                                            <SectionEditorStep
-                                                section={sections[activeSectionIndex]}
-                                                sectionIndex={activeSectionIndex}
-                                                activeGroupIndex={activeGroupIndex}
-                                                onUpdateSectionName={(name: string) => updateSectionName(activeSectionIndex, name)}
-                                                onAddFieldGroup={addFieldGroup}
-                                                onRemoveFieldGroup={removeFieldGroup}
-                                                onUpdateFieldGroupHeading={updateFieldGroupHeading}
-                                                onAddField={addField}
-                                                onRemoveField={removeField}
-                                                onUpdateField={updateField}
-                                            />
-                                        </div>
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-50 to-gray-100">
-                                    <div className="text-center max-w-lg px-6">
-                                        <div className="w-24 h-24 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                                            <Sparkles className="w-12 h-12 text-emerald-600" />
-                                        </div>
-                                        <h3 className="text-2xl font-bold text-gray-900 mb-3">
-                                            Let's build your template
-                                        </h3>
-                                        <p className="text-gray-600 mb-2 leading-relaxed">
-                                            Start by adding sections to organize your form into logical parts.
-                                        </p>
-                                        <p className="text-sm text-gray-500 mb-8 leading-relaxed">
-                                            <span className="font-semibold">Examples:</span> "Client Information", "Project Details", "Budget & Timeline"
-                                        </p>
-                                        <button
-                                            onClick={addSection}
-                                            className="inline-flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg"
-                                        >
-                                            <Sparkles className="w-5 h-5" />
-                                            Create First Section
-                                        </button>
-                                    </div>
+            <div className="flex flex-col h-screen bg-gray-50">
+                {/* Header */}
+                <div className="bg-white border-b border-gray-200">
+                    <div className="max-w-7xl mx-auto px-4 py-2.5">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <button
+                                    onClick={() => router.push('/admin/templates')}
+                                    className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                                    title="Back to templates"
+                                >
+                                    <ArrowLeft className="w-4 h-4 text-gray-600" />
+                                </button>
+                                <div>
+                                    <h1 className="text-base font-semibold text-gray-900">Create Template</h1>
+                                    <p className="text-xs text-gray-500">Build a new template for briefs</p>
                                 </div>
-                            )}
-                        </div>
-                    )}
-
-                    {currentStep === 3 && (
-                        <div className="py-12">
-                            <ReviewStep
-                                template={{ templateName, title, sections }}
-                                onEdit={handleEditSection}
-                            />
-                        </div>
-                    )}
-                </div>
-
-                {/* Footer Navigation */}
-                <div className="bg-white border-t border-gray-200 shadow-lg">
-                    <div className="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
-                        <button
-                            onClick={handlePrevious}
-                            disabled={currentStep === 1}
-                            className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            <ArrowLeft className="w-4 h-4" />
-                            Previous
-                        </button>
-
-                        <div className="flex items-center gap-3">
-                            {/* Save Draft Button - Tertiary/Subtle */}
-                            {currentStep < 3 && (
+                            </div>
+                            <div className="flex items-center gap-2">
                                 <button
-                                    onClick={() => {
-                                        toast.success('Draft saved!', {
-                                            description: 'Your progress has been saved.',
-                                        });
-                                    }}
-                                    className="text-sm font-medium text-gray-600 hover:text-gray-900 underline decoration-dotted underline-offset-4 transition-colors"
+                                    onClick={() => router.push('/admin/templates')}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
                                 >
-                                    💾 Save Draft
+                                    <X className="w-3.5 h-3.5" />
+                                    Cancel
                                 </button>
-                            )}
-
-                            {/* Next/Submit Button - Primary */}
-                            {currentStep < 3 ? (
-                                <button
-                                    onClick={handleNext}
-                                    className="flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg"
-                                >
-                                    <span>Next</span>
-                                    <ArrowRight className="w-4 h-4" />
-                                </button>
-                            ) : (
                                 <button
                                     onClick={handleSubmit}
                                     disabled={isSubmitting}
-                                    className="flex items-center gap-2 px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-md hover:from-emerald-700 hover:to-teal-700 transition-all shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                     {isSubmitting ? (
                                         <>
-                                            <Loader2 className="w-5 h-5 animate-spin" />
-                                            Creating Template...
+                                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                            Creating...
                                         </>
                                     ) : (
                                         <>
-                                            <Sparkles className="w-5 h-5" />
+                                            <Sparkles className="w-3.5 h-3.5" />
                                             Create Template
                                         </>
                                     )}
                                 </button>
-                            )}
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                {/* Basic Info Section */}
+                <div className="bg-white border-b border-gray-200 px-4 py-2.5">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                    Template Name <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={templateName}
+                                    onChange={(e) => setTemplateName(e.target.value)}
+                                    className={`w-full px-2.5 py-1.5 text-black border rounded-md text-xs focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 ${errors.templateName ? 'border-red-500' : 'border-gray-300'
+                                        }`}
+                                    placeholder="e.g., Client Brief Template"
+                                />
+                                {errors.templateName && (
+                                    <p className="text-xs text-red-500 mt-0.5">{errors.templateName}</p>
+                                )}
+                            </div>
+                            <div>
+                                <label className="block text-xs font-medium text-gray-700 mb-1">
+                                    Template Title <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    value={title}
+                                    onChange={(e) => setTitle(e.target.value)}
+                                    className={`w-full px-2.5 py-1.5 text-black border rounded-md text-xs focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 ${errors.title ? 'border-red-500' : 'border-gray-300'
+                                        }`}
+                                    placeholder="e.g., Client Information Brief"
+                                />
+                                {errors.title && (
+                                    <p className="text-xs text-red-500 mt-0.5">{errors.title}</p>
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Content Area */}
+                <div className="flex-1 flex flex-col overflow-hidden">
+                    {/* Section Tabs */}
+                    {sections.length > 0 && (
+                        <SectionTabsBar
+                            sections={sections}
+                            activeSectionIndex={activeSectionIndex}
+                            onSectionClick={setActiveSectionIndex}
+                            onAddSection={addSection}
+                            onRemoveSection={removeSection}
+                            onUpdateSectionName={updateSectionName}
+                        />
+                    )}
+
+                    {/* Editor Area */}
+                    {sections.length > 0 ? (
+                        <div className="flex flex-1 overflow-hidden bg-gray-50">
+                            {/* Field Group Sidebar */}
+                            <FieldGroupSidebar
+                                fieldGroups={sections[activeSectionIndex]?.inputFields || []}
+                                activeGroupIndex={activeGroupIndex}
+                                onGroupClick={setActiveGroupIndex}
+                                onAddGroup={addFieldGroup}
+                                onRemoveGroup={removeFieldGroup}
+                                onUpdateGroupName={(index, name) => updateFieldGroupHeading(index, name)}
+                            />
+
+                            {/* Field Editor */}
+                            <div className="flex-1 overflow-y-auto">
+                                <SectionEditorStep
+                                    section={sections[activeSectionIndex]}
+                                    sectionIndex={activeSectionIndex}
+                                    activeGroupIndex={activeGroupIndex}
+                                    onUpdateSectionName={(name: string) => updateSectionName(activeSectionIndex, name)}
+                                    onAddFieldGroup={addFieldGroup}
+                                    onRemoveFieldGroup={removeFieldGroup}
+                                    onUpdateFieldGroupHeading={updateFieldGroupHeading}
+                                    onAddField={addField}
+                                    onRemoveField={removeField}
+                                    onUpdateField={updateField}
+                                />
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="flex-1 flex items-center justify-center bg-gray-50">
+                            <div className="text-center max-w-md px-6">
+                                <div className="w-16 h-16 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-xl flex items-center justify-center mx-auto mb-4">
+                                    <Sparkles className="w-8 h-8 text-emerald-600" />
+                                </div>
+                                <h3 className="text-lg font-bold text-gray-900 mb-2">
+                                    Let's build your template
+                                </h3>
+                                <p className="text-sm text-gray-600 mb-1">
+                                    Start by adding sections to organize your form
+                                </p>
+                                <p className="text-xs text-gray-500 mb-4">
+                                    <span className="font-semibold">Examples:</span> "Client Information", "Project Details"
+                                </p>
+                                <button
+                                    onClick={addSection}
+                                    className="px-4 py-2 text-xs font-semibold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-md hover:from-emerald-700 hover:to-teal-700 transition-all shadow-sm"
+                                >
+                                    <Sparkles className="w-3.5 h-3.5 inline mr-1.5" />
+                                    Add First Section
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </ProtectedLayout >

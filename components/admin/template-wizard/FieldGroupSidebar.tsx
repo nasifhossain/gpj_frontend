@@ -39,18 +39,17 @@ export const FieldGroupSidebar: React.FC<FieldGroupSidebarProps> = ({
     };
 
     return (
-        <div className="w-80 bg-white border-r-2 border-gray-200 flex flex-col h-full shadow-sm">
+        <div className="w-64 bg-white border-r border-gray-200 flex flex-col h-full">
             {/* Header */}
-            <div className="p-5 border-b-2 border-gray-200 bg-gradient-to-br from-emerald-50 to-teal-50">
-                <div className="flex items-center gap-2 mb-2">
-                    <Grid className="w-5 h-5 text-emerald-600" />
-                    <h3 className="text-base font-bold text-gray-900">Field Groups</h3>
+            <div className="px-3 py-2 border-b border-gray-200 bg-gradient-to-br from-emerald-50 to-teal-50">
+                <div className="flex items-center gap-1.5">
+                    <Grid className="w-3.5 h-3.5 text-emerald-600" />
+                    <h3 className="text-xs font-bold text-gray-900">Field Groups</h3>
                 </div>
-                <p className="text-xs text-gray-600">Group related fields for better organization</p>
             </div>
 
             {/* Field Group List */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-2">
+            <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
                 {fieldGroups.length === 0 ? (
                     <div className="text-center py-8 px-3">
                         <div className="w-14 h-14 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-xl flex items-center justify-center mx-auto mb-3">
@@ -68,16 +67,16 @@ export const FieldGroupSidebar: React.FC<FieldGroupSidebarProps> = ({
                             <div
                                 key={index}
                                 className={`
-                                    group relative rounded-xl transition-all duration-200
+                                    group relative rounded-lg transition-all duration-200
                                     ${isActive
-                                        ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-lg scale-[1.02]'
-                                        : 'bg-gray-50 hover:bg-gray-100 text-gray-900 hover:shadow-sm'
+                                        ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-md'
+                                        : 'bg-gray-50 hover:bg-gray-100 text-gray-900'
                                     }
                                 `}
                                 onClick={() => !isEditing && onGroupClick(index)}
                             >
-                                <div className="p-4 flex items-center gap-2">
-                                    <ChevronRight className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-white' : 'text-emerald-500'}`} />
+                                <div className="p-2 flex items-center gap-1.5">
+                                    <ChevronRight className={`w-3 h-3 flex-shrink-0 ${isActive ? 'text-white' : 'text-emerald-500'}`} />
                                     <div className="flex-1 min-w-0">
                                         {isEditing ? (
                                             <input
@@ -89,13 +88,13 @@ export const FieldGroupSidebar: React.FC<FieldGroupSidebarProps> = ({
                                                     if (e.key === 'Enter') finishEditing();
                                                     if (e.key === 'Escape') setEditingIndex(null);
                                                 }}
-                                                className="w-full px-2 py-1 text-sm font-semibold bg-white text-gray-900 border-2 border-emerald-500 rounded focus:outline-none focus:ring-2 focus:ring-emerald-300"
+                                                className="w-full px-2 py-0.5 text-xs font-semibold bg-white text-gray-900 border border-emerald-500 rounded focus:outline-none focus:ring-1 focus:ring-emerald-300"
                                                 autoFocus
                                                 onClick={(e) => e.stopPropagation()}
                                             />
                                         ) : (
                                             <>
-                                                <div className={`text-sm font-semibold truncate ${isActive ? 'text-white' : 'text-gray-900'}`}>
+                                                <div className={`text-xs font-semibold truncate ${isActive ? 'text-white' : 'text-gray-900'}`}>
                                                     {group.fieldsHeading || `Group ${index + 1}`}
                                                 </div>
                                                 <div className={`text-xs mt-0.5 ${isActive ? 'text-emerald-100' : 'text-gray-500'}`}>
@@ -118,7 +117,7 @@ export const FieldGroupSidebar: React.FC<FieldGroupSidebarProps> = ({
                                             `}
                                             title="Edit group name"
                                         >
-                                            <Edit2 className="w-3.5 h-3.5" />
+                                            <Edit2 className="w-3 h-3" />
                                         </button>
                                     )}
 
@@ -134,7 +133,7 @@ export const FieldGroupSidebar: React.FC<FieldGroupSidebarProps> = ({
                                         `}
                                         title="Remove group"
                                     >
-                                        <Trash2 className="w-3.5 h-3.5" />
+                                        <Trash2 className="w-3 h-3" />
                                     </button>
                                 </div>
                             </div>
@@ -144,12 +143,12 @@ export const FieldGroupSidebar: React.FC<FieldGroupSidebarProps> = ({
             </div>
 
             {/* Add Group Button */}
-            <div className="p-3 border-t-2 border-gray-200 bg-gray-50">
+            <div className="p-2 border-t border-gray-200 bg-gray-50">
                 <button
                     onClick={onAddGroup}
-                    className="w-full flex items-center justify-center gap-2 px-4 py-3 text-sm font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg"
+                    className="w-full flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-all shadow-sm"
                 >
-                    <Plus className="w-5 h-5" />
+                    <Plus className="w-3.5 h-3.5" />
                     Add Field Group
                 </button>
             </div>

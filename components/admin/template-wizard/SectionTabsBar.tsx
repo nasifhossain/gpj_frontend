@@ -35,9 +35,9 @@ export const SectionTabsBar: React.FC<SectionTabsBarProps> = ({
     };
 
     return (
-        <div className="bg-white border-b-2 border-gray-200 shadow-sm">
-            <div className="max-w-7xl mx-auto px-6">
-                <div className="flex items-center gap-2 overflow-x-auto py-4">
+        <div className="bg-white border-b border-gray-200">
+            <div className="max-w-7xl mx-auto px-4">
+                <div className="flex items-center gap-2 overflow-x-auto py-2">
                     {/* Section Tabs */}
                     {sections.map((section, index) => {
                         const isActive = index === activeSectionIndex;
@@ -48,10 +48,10 @@ export const SectionTabsBar: React.FC<SectionTabsBarProps> = ({
                             <div
                                 key={index}
                                 className={`
-                                    group relative flex items-center gap-3 px-6 py-3.5 rounded-xl transition-all duration-200
+                                    group relative flex items-center gap-2 px-3 py-1.5 rounded-lg transition-all duration-200
                                     ${isActive
-                                        ? 'bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-lg scale-105'
-                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200 hover:shadow-md'
+                                        ? 'bg-gradient-to-br from-emerald-500 to-teal-500 text-white shadow-md'
+                                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                     }
                                 `}
                                 onClick={() => !isEditing && onSectionClick(index)}
@@ -59,9 +59,9 @@ export const SectionTabsBar: React.FC<SectionTabsBarProps> = ({
                                 {/* Status Icon */}
                                 <div className="flex-shrink-0">
                                     {hasContent ? (
-                                        <CheckCircle2 className={`w-5 h-5 ${isActive ? 'text-white' : 'text-emerald-500'}`} />
+                                        <CheckCircle2 className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-emerald-500'}`} />
                                     ) : (
-                                        <Circle className={`w-5 h-5 ${isActive ? 'text-white/70' : 'text-gray-400'}`} />
+                                        <Circle className={`w-3.5 h-3.5 ${isActive ? 'text-white/70' : 'text-gray-400'}`} />
                                     )}
                                 </div>
 
@@ -76,12 +76,12 @@ export const SectionTabsBar: React.FC<SectionTabsBarProps> = ({
                                             if (e.key === 'Enter') finishEditing();
                                             if (e.key === 'Escape') setEditingIndex(null);
                                         }}
-                                        className="px-2 py-1 text-sm font-semibold bg-white text-gray-900 border-2 border-indigo-500 rounded focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                                        className="px-2 py-0.5 text-xs font-semibold bg-white text-gray-900 border border-indigo-500 rounded focus:outline-none focus:ring-1 focus:ring-indigo-300"
                                         autoFocus
                                         onClick={(e) => e.stopPropagation()}
                                     />
                                 ) : (
-                                    <span className={`text-sm font-semibold whitespace-nowrap ${isActive ? 'text-white' : 'text-gray-900'
+                                    <span className={`text-xs font-semibold whitespace-nowrap ${isActive ? 'text-white' : 'text-gray-900'
                                         }`}>
                                         {section.sectionName || `Section ${index + 1}`}
                                     </span>
@@ -100,13 +100,13 @@ export const SectionTabsBar: React.FC<SectionTabsBarProps> = ({
                                         `}
                                         title="Edit section name"
                                     >
-                                        <Edit2 className="w-3.5 h-3.5" />
+                                        <Edit2 className="w-3 h-3" />
                                     </button>
                                 )}
 
                                 {/* Field Count Badge */}
                                 <span className={`
-                                    text-xs px-2.5 py-1 rounded-full font-semibold
+                                    text-xs px-2 py-0.5 rounded-full font-medium
                                     ${isActive
                                         ? 'bg-white/20 text-white'
                                         : 'bg-gray-200 text-gray-700'
@@ -130,7 +130,7 @@ export const SectionTabsBar: React.FC<SectionTabsBarProps> = ({
                                     `}
                                     title="Remove section"
                                 >
-                                    <X className="w-4 h-4" />
+                                    <X className="w-3.5 h-3.5" />
                                 </button>
                             </div>
                         );
@@ -139,9 +139,9 @@ export const SectionTabsBar: React.FC<SectionTabsBarProps> = ({
                     {/* Add Section Button */}
                     <button
                         onClick={onAddSection}
-                        className="flex items-center gap-2 px-6 py-3.5 text-sm font-semibold text-emerald-700 bg-white rounded-xl hover:bg-emerald-50 transition-all border-2 border-emerald-300 hover:border-emerald-400 whitespace-nowrap shadow-sm hover:shadow-md"
+                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-emerald-700 bg-white rounded-lg hover:bg-emerald-50 transition-all border border-emerald-300 hover:border-emerald-400 whitespace-nowrap"
                     >
-                        <Plus className="w-5 h-5" />
+                        <Plus className="w-3.5 h-3.5" />
                         Add Section
                     </button>
                 </div>
