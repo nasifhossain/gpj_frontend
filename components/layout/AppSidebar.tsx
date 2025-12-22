@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, FileText, LogOut } from 'lucide-react';
+import { LayoutDashboard, FileText, Users, Inbox, LogOut } from 'lucide-react';
 import Cookies from 'js-cookie';
 
 export const AppSidebar: React.FC = () => {
@@ -27,6 +27,18 @@ export const AppSidebar: React.FC = () => {
             href: '/admin/templates/create',
             icon: FileText,
             active: pathname.startsWith('/admin/templates'),
+        },
+        {
+            name: 'Submissions',
+            href: '/admin/submissions',
+            icon: Inbox,
+            active: pathname.startsWith('/admin/submissions'),
+        },
+        {
+            name: 'Users',
+            href: '/admin/users',
+            icon: Users,
+            active: pathname.startsWith('/admin/users'),
         },
     ];
 
