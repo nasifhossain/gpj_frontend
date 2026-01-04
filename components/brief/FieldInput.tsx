@@ -105,24 +105,54 @@ export function FieldInput({ field, value, onChange, disabled = false }: FieldIn
                 }
 
                 if (field.dataType === 'Object') {
-                    // For Object types like {Name, Email}, render as JSON textarea
-                    const objValue = typeof currentValue === 'string' ? currentValue : JSON.stringify(currentValue, null, 2);
+                    // For Object types like {Name, Email}, render individual inputs for each property
+                    let objectValue: Record<string, any> = {};
+
+                    // Parse the current value
+                    if (typeof currentValue === 'object' && currentValue !== null) {
+                        objectValue = currentValue;
+                    } else if (typeof currentValue === 'string') {
+                        try {
+                            objectValue = JSON.parse(currentValue);
+                        } catch {
+                            objectValue = {};
+                        }
+                    }
+
+                    // Get the default structure from field options
+                    const defaultStructure = field.options?.defaultValue || {};
+                    const objectKeys = Object.keys(defaultStructure);
+
+                    // Ensure all keys exist in objectValue
+                    objectKeys.forEach(key => {
+                        if (!(key in objectValue)) {
+                            objectValue[key] = null;
+                        }
+                    });
+
+                    const handleObjectFieldChange = (key: string, value: string) => {
+                        const updatedObject = { ...objectValue, [key]: value || null };
+                        onChange(updatedObject);
+                    };
+
                     return (
-                        <textarea
-                            value={objValue}
-                            onChange={(e) => {
-                                try {
-                                    const parsed = JSON.parse(e.target.value);
-                                    onChange(parsed);
-                                } catch {
-                                    onChange(e.target.value);
-                                }
-                            }}
-                            disabled={disabled}
-                            rows={4}
-                            className="w-full px-4 py-3 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed font-mono text-sm"
-                            placeholder={`{"Name": "", "Email": ""}`}
-                        />
+                        <div className="space-y-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            {objectKeys.map((key) => (
+                                <div key={key} className="space-y-1.5">
+                                    <label className="block text-sm font-medium text-gray-700">
+                                        {key}
+                                    </label>
+                                    <input
+                                        type={key.toLowerCase().includes('email') ? 'email' : 'text'}
+                                        value={objectValue[key] || ''}
+                                        onChange={(e) => handleObjectFieldChange(key, e.target.value)}
+                                        disabled={disabled}
+                                        className="w-full px-3 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                                        placeholder={`Enter ${key.toLowerCase()}...`}
+                                    />
+                                </div>
+                            ))}
+                        </div>
                     );
                 }
 

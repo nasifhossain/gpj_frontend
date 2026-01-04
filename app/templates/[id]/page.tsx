@@ -218,8 +218,21 @@ export default function BriefEditPage() {
         const sectionFieldValues: Record<string, any> = {};
         activeSection.fields.forEach(field => {
             const value = fieldValues[field.id];
-            if (value !== undefined && value !== null && value !== '') {
-                sectionFieldValues[field.fieldKey] = value;
+
+            // Handle different data types appropriately
+            if (value !== undefined && value !== null) {
+                if (field.dataType === 'Object') {
+                    // For objects, check if at least one property has a value
+                    if (typeof value === 'object') {
+                        const hasValue = Object.values(value).some(v => v !== null && v !== '');
+                        if (hasValue) {
+                            sectionFieldValues[field.fieldKey] = value;
+                        }
+                    }
+                } else if (value !== '') {
+                    // For non-object types, exclude empty strings
+                    sectionFieldValues[field.fieldKey] = value;
+                }
             }
         });
 
