@@ -6,6 +6,7 @@ import { LayoutDashboard, FileText, LogOut, Sparkles, FolderOpen, Activity, Sett
 import { toast } from 'sonner';
 import { PanelLeft, PanelLeftClose } from 'lucide-react';
 import Cookies from 'js-cookie';
+import { MobileBottomNav } from './MobileBottomNav';
 
 interface ProtectedLayoutProps {
     children: React.ReactNode;
@@ -134,6 +135,13 @@ const RoleSidebar: React.FC<{ role: 'ADMIN' | 'CLIENT' }> = ({ role }) => {
 
 export const ProtectedLayout: React.FC<ProtectedLayoutProps> = ({ children, role = 'CLIENT' }) => {
     const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+    const router = useRouter();
+
+    const handleLogout = () => {
+        Cookies.remove('token');
+        localStorage.removeItem('user_profile');
+        router.push('/login');
+    };
 
     // Keyboard shortcuts
     useEffect(() => {
@@ -157,18 +165,20 @@ export const ProtectedLayout: React.FC<ProtectedLayoutProps> = ({ children, role
 
     return (
         <div className="flex h-screen overflow-hidden">
-            {/* Sidebar */}
-            {isSidebarVisible && <RoleSidebar role={role} />}
+            {/* Desktop Sidebar - Hidden on mobile */}
+            <div className={`hidden md:flex ${isSidebarVisible ? '' : 'md:hidden'}`}>
+                {isSidebarVisible && <RoleSidebar role={role} />}
+            </div>
 
             {/* Main Content */}
             <div
-                className={`flex-1 overflow-auto bg-gray-50 transition-all duration-300 relative ${isSidebarVisible ? 'ml-64' : 'ml-0'
+                className={`flex-1 overflow-auto bg-gray-50 transition-all duration-300 relative pb-16 md:pb-0 ${isSidebarVisible ? 'md:ml-64' : 'md:ml-0'
                     }`}
             >
-                {/* Sidebar Toggle Button - Edge Arrow */}
+                {/* Sidebar Toggle Button - Edge Arrow (Desktop only) */}
                 <button
                     onClick={() => setIsSidebarVisible(!isSidebarVisible)}
-                    className={`fixed top-1/2 -translate-y-1/2 z-50 p-2 bg-white border-2 border-emerald-200 hover:bg-emerald-50 hover:border-emerald-300 transition-all shadow-lg hover:shadow-xl opacity-0 hover:opacity-100 ${isSidebarVisible
+                    className={`hidden md:block fixed top-1/2 -translate-y-1/2 z-50 p-2 bg-white border-2 border-emerald-200 hover:bg-emerald-50 hover:border-emerald-300 transition-all shadow-lg hover:shadow-xl opacity-0 hover:opacity-100 ${isSidebarVisible
                         ? 'left-64 rounded-r-lg -ml-px'
                         : 'left-0 rounded-r-lg'
                         }`}
@@ -183,6 +193,9 @@ export const ProtectedLayout: React.FC<ProtectedLayoutProps> = ({ children, role
 
                 {children}
             </div>
+
+            {/* Mobile Bottom Navigation */}
+            <MobileBottomNav role={role} onLogout={handleLogout} />
         </div>
     );
 };
